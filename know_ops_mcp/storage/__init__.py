@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
-from know_ops_mcp.storage.base import BaseStorage
+from know_ops_mcp.storage.backends.external import ExternalStorage
+from know_ops_mcp.storage.backends.external.github import GitHubStorage
 from know_ops_mcp.storage.backends.internal.local import LocalDirectoryStorage
 from know_ops_mcp.storage.backends.internal.memory import MemoryStorage
+from know_ops_mcp.storage.base import BaseStorage
+from know_ops_mcp.storage.cache import CachedStorage, default_cache_dir
 
 
 class StorageService:
@@ -32,8 +35,12 @@ storage = StorageService(MemoryStorage())
 
 __all__ = [
     "BaseStorage",
-    "MemoryStorage",
+    "CachedStorage",
+    "ExternalStorage",
+    "GitHubStorage",
     "LocalDirectoryStorage",
+    "MemoryStorage",
     "StorageService",
+    "default_cache_dir",
     "storage",
 ]
