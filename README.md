@@ -1,4 +1,4 @@
-# know-ops-mcp
+# KnowOps — Cross-Session Knowledge Management for LLM Clients
 
 Shared knowledge MCP server for any LLM client. Stores entries as plain `.md` files with frontmatter, so you can read, edit, and version-control them outside the tool.
 
@@ -29,7 +29,7 @@ Run the interactive wizard once. Pick whichever invocation matches your install:
 
 ```bash
 # Not yet on PyPI — use the git URL form for now:
-uvx --from git+https://github.com/gyeo-ri/cursor-memo-re know-ops-mcp setup
+uvx --from git+https://github.com/gyeo-ri/know-ops-mcp know-ops-mcp setup
 
 # Once published to PyPI:
 uvx know-ops-mcp setup
@@ -64,7 +64,7 @@ The snippet looks like this (PyPI form):
       "command": "uvx",
       "args": [
         "--from",
-        "git+https://github.com/gyeo-ri/cursor-memo-re",
+        "git+https://github.com/gyeo-ri/know-ops-mcp",
         "know-ops-mcp"
       ]
     }
@@ -175,8 +175,8 @@ For the GitHub backend, the same files live in your repo (under the configured s
 ## Development
 
 ```bash
-git clone https://github.com/gyeo-ri/cursor-memo-re
-cd cursor-memo-re
+git clone https://github.com/gyeo-ri/know-ops-mcp
+cd know-ops-mcp
 uv sync --dev
 uv run know-ops-mcp setup
 uv run pytest

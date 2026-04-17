@@ -5,8 +5,8 @@ Thanks for your interest. This guide captures the conventions this repo follows 
 ## Development setup
 
 ```bash
-git clone https://github.com/gyeo-ri/cursor-memo-re
-cd cursor-memo-re
+git clone https://github.com/gyeo-ri/know-ops-mcp
+cd know-ops-mcp
 uv sync --dev
 ```
 
