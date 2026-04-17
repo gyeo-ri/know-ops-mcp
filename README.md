@@ -25,14 +25,10 @@ If any command below errors with `command not found: uvx`, you skipped this step
 
 ## First-time setup
 
-Run the interactive wizard once. Pick whichever invocation matches your install:
+Run the interactive wizard once:
 
 ```bash
-# Not yet on PyPI — use the git URL form for now:
 uvx --from git+https://github.com/gyeo-ri/know-ops-mcp know-ops-mcp setup
-
-# Once published to PyPI:
-uvx know-ops-mcp setup
 ```
 
 It will:
@@ -40,22 +36,9 @@ It will:
 1. Ask which backend to use (`local` or `github`)
 2. Ask backend-specific questions (path, or repo URL + token)
 3. Save your config to `~/.config/know-ops-mcp/config.toml` with mode `0600`
-4. Print an MCP registration snippet — already shaped for your install (it auto-detects whether you're on PyPI, a git URL, or a local checkout) — that you copy into your client's config
+4. Print an MCP registration snippet — already shaped for your install (it auto-detects whether you're on a git URL or a local checkout) — that you copy into your client's config
 
-The snippet looks like this (PyPI form):
-
-```json
-{
-  "mcpServers": {
-    "know-ops-mcp": {
-      "command": "uvx",
-      "args": ["know-ops-mcp"]
-    }
-  }
-}
-```
-
-…or like this if you ran setup via the git URL above:
+The snippet looks like this:
 
 ```json
 {
@@ -122,7 +105,7 @@ Try asking the LLM to write a note, then ask another session to read it back.
 
 ## Commands
 
-Prefix each with `uvx --from <source>` (or just `uvx` once on PyPI), matching the install you used above.
+Prefix each with `uvx --from <source>`, matching the install you used above.
 
 | Command | What it does |
 | --- | --- |
