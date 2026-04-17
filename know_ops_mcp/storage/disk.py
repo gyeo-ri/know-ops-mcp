@@ -2,6 +2,12 @@
 
 Convention: one `<name>.md` file per entry under a given root directory.
 Used by `LocalDirectoryStorage` (backend) and `CachedStorage` (cache layer).
+
+Writes are atomic via temp file + rename: the target file either reflects
+the previous version or the new one, never a partially-written body. The
+temp file lives next to the target (same filesystem) so the rename is
+truly atomic on POSIX; `Path.replace` covers Windows by overwriting an
+existing target.
 """
 
 from __future__ import annotations
@@ -25,7 +31,10 @@ def read(root: Path, name: str) -> str | None:
 
 
 def write(root: Path, name: str, content: str) -> None:
-    _file(root, name).write_text(content, encoding="utf-8")
+    target = _file(root, name)
+    tmp = target.with_suffix(target.suffix + ".tmp")
+    tmp.write_text(content, encoding="utf-8")
+    tmp.replace(target)
 
 
 def delete(root: Path, name: str) -> bool:

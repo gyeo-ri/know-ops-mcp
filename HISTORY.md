@@ -228,3 +228,16 @@ import 경로가 의존성 그래프와 어긋나 있던 문제를 해결.
   - `setup/wizard.py`의 `DEFAULT_LOCAL_PATH` 상수 제거 → `default_data_dir()` 호출.
   - README/FEATURES의 default 경로 표기 갱신.
 
+## M18. 디스크 쓰기 원자성 — temp file + rename
+
+`disk.write`를 단순 `Path.write_text`에서 `temp file → Path.replace` 패턴으로 전환.
+
+- 동기: 프로세스 kill / 전원 차단 / 디스크 가득 참 등으로 write 도중 중단되면 `.md` 파일이 truncated된 상태로 남을 수 있음. frontmatter가 잘려 다음 read에서 deserialize 실패.
+- 변경: `<name>.md.tmp`에 먼저 쓰고 `Path.replace(target)`. POSIX rename은 원자적, `Path.replace`는 Windows에서도 기존 파일 덮어쓰기 가능.
+- 효과:
+  - `LocalDirectoryStorage`와 `CachedStorage` 양쪽 자동 적용 (둘 다 `disk.write` 사용).
+  - `*.md` glob은 `.tmp` 무시 → 잔여 임시 파일이 list/search 결과에 노출되지 않음.
+  - 동일 이름의 다음 write가 `.tmp`를 재생성하며 자연 정리.
+- 보류: fsync (full durability). 이 도구는 노트 저장이라 atomicity로 충분. 향후 transactional 요구 생기면 추가.
+
+
