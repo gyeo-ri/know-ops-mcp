@@ -112,13 +112,16 @@ BaseStorage (ABC)                        read/write/delete/list_all
 
 ## 미결정 / 미구현 (TODO)
 
-- [ ] 새 Knowledge 타입 추가 (예: ConversationKnowledge, ProjectKnowledge) — 추상화는 완료, 실제 타입은 필요 시점에
-- [ ] PyPI publish — 마치면 wizard 스니펫이 자동으로 `uvx know-ops-mcp` 형태로 단축됨 (M19)
-- [ ] 테스트 코드 (pytest 도입)
-- [ ] coverage 측정 (`pytest-cov`) — 테스트가 충분히 쌓인 시점(T2 이후쯤)에 약점 가시화 용도. 임계치/CI gate는 별도 결정.
-- [ ] 100k entry 초과 repo 지원 (현재는 Trees API truncated 응답에서 fail-fast)
-- [ ] 캐시 conflict 처리 — 현재 last-write-wins. 충돌 빈발 시 sha 비교 도입 검토
-- [ ] 원격 배포 전환 (streamable-http transport)
+각 항목은 `id`로 참조 가능. status: `pending` (착수 대기) / `in-progress` / `blocked`.
+
+| id | status | description | refs |
+| --- | --- | --- | --- |
+| pypi-publish | pending | PyPI 배포. 완료 시 wizard 스니펫이 `uvx know-ops-mcp` 단축형으로 자동 전환 | M19 |
+| pytest-cov | pending | coverage 측정 도입. 임계치/CI gate 정책은 별도 결정 | M20 |
+| new-knowledge-types | pending | 새 Knowledge 타입 추가 (예: ConversationKnowledge, ProjectKnowledge). 추상화 완료, 실제 타입은 필요 시점에 | — |
+| 100k-entry-repo | pending | 100k entry 초과 repo 지원 (현재 Trees API truncated 응답에서 fail-fast) | M16 |
+| cache-conflict | pending | sha 기반 conflict 감지 검토. 현재 last-write-wins | M16 |
+| remote-transport | pending | streamable-http transport 전환 (원격 배포) | — |
 
 ## 검토 후 기각된 대안
 
