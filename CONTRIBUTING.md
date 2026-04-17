@@ -10,7 +10,7 @@ cd cursor-memo-re
 uv sync --dev
 ```
 
-`uv sync --dev` installs runtime + dev dependencies (currently just `pytest`).
+`uv sync --dev` installs runtime + dev dependencies (`pytest`, `respx`).
 
 To exercise the CLI from your checkout:
 
@@ -22,29 +22,10 @@ uv run know-ops-mcp serve
 ## Running tests
 
 ```bash
-# everything (default scope)
 uv run pytest
-
-# one file
-uv run pytest tests/storage/test_disk.py
-
-# one test
-uv run pytest tests/storage/test_disk.py::test_write_overwrites_existing
-
-# include tests that hit real external services (GitHub, etc.)
-uv run pytest -m live
 ```
 
-The `live` marker is for tests that require network access and credentials (e.g. a real `KNOW_OPS_MCP_GITHUB_TOKEN`). They are excluded from the default run; opt in explicitly with `-m live`.
-
-## Adding tests
-
-- Mirror the source tree under `tests/`. `know_ops_mcp/storage/cache.py` → `tests/storage/test_cache.py`.
-- File name is `test_*.py`; test function name is `test_*`.
-- Filesystem I/O uses pytest's `tmp_path` fixture, never the real `~`.
-- Environment variables and shells of state use `monkeypatch` so tests don't leak into each other (`monkeypatch.setenv`, `monkeypatch.delenv`).
-- HTTP-touching code uses `respx` (added in T2) to mock `httpx` traffic.
-- Any test that depends on network or credentials must be marked `@pytest.mark.live`.
+All tests are offline; the GitHub backend is mocked with `respx`. See [tests/README.md](tests/README.md) for layout and fixture conventions.
 
 ## Code conventions
 
