@@ -52,9 +52,7 @@ Subject is imperative and lowercase after the prefix. Body explains *why*, not *
 
 ## Documenting design changes
 
-Substantive design choices land as a numbered milestone in the personal knowledge store
-(entry `know-ops-mcp-history`, keyed by `M<N>`). Use this for: storage layer changes,
-configuration model changes, distribution/install model changes, any new third-party dependency.
+Substantive design choices (storage layer changes, configuration model changes, distribution/install model changes, any new third-party dependency) are tracked as numbered milestones by the maintainer. If your PR introduces one, mention it in the PR description — the maintainer will record the milestone.
 
 Routine refactors and bug fixes don't need a milestone — the commit message is enough.
 
@@ -62,6 +60,5 @@ Routine refactors and bug fixes don't need a milestone — the commit message is
 
 - Branch from `main`.
 - Prefer many small focused commits to one giant commit. If the diff covers multiple concerns, split it.
-- If the change motivates a CHANGELOG milestone, link it from the PR description.
 - Run `uv run pytest` before pushing.
 - Keep `README.md` and `AGENTS.md` honest — if your change makes them stale, update them in the same PR.

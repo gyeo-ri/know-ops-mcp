@@ -2,7 +2,10 @@
 name = "know-ops-mcp"
 version = "0.1.0"
 description = "Shared knowledge MCP server for LLM clients"
+license = "MIT"
+readme = "README.md"
 requires-python = ">=3.11"
+authors = [{ name = "gyeo-ri", email = "gyeori.world@gmail.com" }]
 dependencies = [
     "fastmcp>=3.2.0",
     "httpx>=0.28.1",
@@ -10,7 +13,12 @@ dependencies = [
     "questionary>=2.1.1",
     "tomli-w>=1.2.0",
     "typer>=0.24.1",
+    "pydantic>=2.0",
 ]
+
+[project.urls]
+Repository = "https://github.com/gyeo-ri/know-ops-mcp"
+Issues = "https://github.com/gyeo-ri/know-ops-mcp/issues"
 
 [project.scripts]
 know-ops-mcp = "know_ops_mcp.setup.cli:app"

@@ -686,6 +686,7 @@ source = { editable = "." }
 dependencies = [
     { name = "fastmcp" },
     { name = "httpx" },
+    { name = "pydantic" },
     { name = "python-frontmatter" },
     { name = "questionary" },
     { name = "tomli-w" },
@@ -703,6 +704,7 @@ dev = [
 requires-dist = [
     { name = "fastmcp", specifier = ">=3.2.0" },
     { name = "httpx", specifier = ">=0.28.1" },
+    { name = "pydantic", specifier = ">=2.0" },
     { name = "python-frontmatter", specifier = ">=1.0" },
     { name = "questionary", specifier = ">=2.1.1" },
     { name = "tomli-w", specifier = ">=1.2.0" },
