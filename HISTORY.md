@@ -126,3 +126,83 @@ import 경로가 의존성 그래프와 어긋나 있던 문제를 해결.
   - `know_ops_mcp/know_ops/__init__.py`(85 LOC 단일 파일) → `know_ops_mcp/know_ops.py` 모듈 (패키지로 둘 이유 없음)
   - 11개 `from know_ops_mcp.know_ops.X` import 일괄 치환
 - 효과: setup의 storage import 한 단계 짧아짐, server.py 입장에서 `know_ops`/`storage`가 시각적으로도 형제로 보임, layer별 단위테스트 분리 용이
+
+## M16. ExternalStorage + GitHub 백엔드 + Cache 레이어
+
+1차 가치(1인 다기기 동기화)를 실현하기 위한 외부 저장소 통합. 단계적으로 청크 1~5에 걸쳐 진행하며, 본 항목은 설계 결정의 단일 출처.
+
+### 배경
+- LocalDirectoryStorage만으로는 다기기 동기화 불가. GitHub Repo가 1차 외부 백엔드 후보 (이식성/검수성/비용 0).
+- 매 LLM 호출마다 GitHub API 직타하면 느리고 rate limit (인증 시 시간당 5000) 소진 위험. → 캐시 필요.
+
+### 1. API mode
+- **선택**: GitHub REST API + httpx, 파일 단위 I/O.
+- 대안: git CLI subprocess (사용자 환경에 git 설치 강제), libgit2 바인딩 (의존성 무거움). 둘 다 기각.
+
+### 2. Auth 전달 경로
+- **선택**: PAT를 `config.toml`에 평문 저장 + `chmod 600`. `KNOW_OPS_MCP_GITHUB_TOKEN` 환경변수로 override 허용 (escape hatch).
+- 검토 경로:
+  - (a) `mcp.json`의 `env` 필드만 사용 — 사용자가 mcp.json 직접 편집해야 함. 다른 declarative config(repo URL, branch 등)는 setup wizard로 들어가는데 토큰만 따로 관리하는 분리가 어색.
+  - (b) `config.toml` 단일화 — UX 우선. setup wizard가 모든 설정을 한 곳에서 처리. 평문 저장이 보안 trade-off지만 0600 + 사용자 home + scope 좁힌 PAT로 피해 한정.
+- **결정**: (b). env override는 CI/스크립트용 escape hatch로 유지.
+
+### 3. Cache TTL
+- **선택**: 무한. 명시적 `refresh_knowledge_cache` MCP tool 호출로만 갱신.
+- 이유: 시간 기반 TTL은 임의 stale window를 만들고, 사용자가 "지금 최신을 보고 싶다"는 의도를 표현할 방법이 없음. LLM 호출 흐름과 더 잘 맞는 건 명시적 refresh.
+
+### 4. Listing 전략
+- **선택**: Git Trees API (`recursive=true`). truncated 응답 시 `RuntimeError` raise (silent 누락 방지). 페이지네이션 안 함.
+- 검토: GitHub Contents API의 디렉토리 listing은 1000 entry 한도 (페이지네이션 없음). Trees API는 ~100k entry / 7MB까지 단일 호출.
+- 100k 초과는 repo 분할로 해결 권장. 임의 페이지네이션 구현은 over-engineering.
+
+### 5. Rate limit 대응
+- **선택**: 429 또는 403 + `x-ratelimit-remaining=0` 감지 시 `Retry-After`/`X-RateLimit-Reset` 헤더 따라 sleep, **1회만 재시도** (60초 cap). 진짜 auth fail (403 with remaining>0)은 재시도 안 함.
+- 이유: 무한 재시도는 LLM 호출 hang 유발. 1회 한정으로 일시적 burst만 흡수.
+
+### 6. Cache 구조 — Decorator 패턴
+- **선택**: `CachedStorage(BaseStorage)`가 `ExternalStorage`를 wrapping하는 데코레이터.
+- 검토: `LocalDirectoryStorage`에 cache 옵션을 내장하는 안 → 캐시 정책과 백엔드 종류는 직교 관심사. 단일 책임 위배.
+- `ExternalStorage` ABC에 `list_versions() -> dict[str, str]` 추가 (name → opaque version, GitHub은 blob sha). 향후 다른 외부 백엔드에서 staleness 비교 등에 활용 가능한 계약.
+- `LocalDirectoryStorage`는 캐싱 안 함 (이미 로컬 디스크).
+
+### 7. Cache 위치
+- **선택**: `~/.cache/know-ops-mcp/` (XDG_CACHE_HOME 존중). 단일 디렉토리.
+- 가정: 1 사용자 = 1 backend. 멀티 backend 사용 사례가 실제로 나오면 그때 분리.
+
+### 8. Cache 정책 — cache-on-read
+가장 길게 검토된 결정. 핵심 질문: "list_all과 캐시는 어떻게 상호작용?"
+
+**결정한 정책**:
+| 연산 | 동작 |
+| --- | --- |
+| `read(name)` | 캐시 hit이면 그대로, miss면 backend → 캐시 저장 |
+| `list_versions()` | 항상 backend 직행. entry 누락 방지 + refresh 판단 기준 |
+| `list_all()` | `list_versions`로 이름 목록 얻고 → 각 이름 `read()` → 자연스럽게 캐시 활용 |
+| `write(name, content)` | backend.write → 캐시도 즉시 갱신 (write-through) |
+| `delete(name)` | backend.delete → 캐시 파일 evict |
+| `refresh(name=None)` | 캐시 파일 제거 (전체 / 단건). 다음 read에서 backend fetch |
+
+**검토한 대안**:
+- (a) **list 결과까지 캐시**: 새 entry가 remote에 추가돼도 다음 refresh까지 안 보임 → 사용자 부담. 기각.
+- (b) **write 시 캐시 invalidate**: 다음 read에서 fetch → 방금 write한 흐름에서 1번 미스 발생. write-through가 더 자연스러움.
+- (c) **sha 기반 staleness 체크 매 read**: 매 read마다 list_versions 호출 → 캐시 의미 반감, 무한 TTL과 모순.
+- (d) **캐시에 메타파일 `.shas.json`**: sha 비교 안 하니 불필요. 단순 `<name>.md` 파일 모음으로 충분.
+
+**자연스러운 결과**:
+- 첫 search/list_all = 1 tree call + N reads (N = entry 수). 이후 read만 하면 캐시 hit.
+- 새 remote entry는 list_versions가 즉시 반영 → LLM 검색 결과에 노출됨 (콘텐츠는 그 시점에 fetch).
+- 진짜 staleness는 "캐시된 콘텐츠가 remote에서 변경됐을 때"에 한정. manual `refresh(name)`로 해결.
+
+**인정한 trade-off**:
+- 다른 기기에서 같은 entry 수정 → 이 기기에서 read하면 stale 캐시. 사용자가 `refresh` 호출.
+- 첫 search/list_all 비용이 큼. 이건 무한 TTL의 본질적 비용 — 이후 모든 호출이 거의 무료라는 것과 trade.
+
+### 9. 청크 분할
+사용자 검토/승인 cycle을 짧게 가져가기 위해 5 + docs 청크로 분할.
+- C1 ✅ `storage/disk.py` 공유 헬퍼 + `LocalDirectoryStorage` 리팩터
+- C2 ✅ `httpx` + `ExternalStorage` ABC + `GitHubStorage`
+- C3 ⏳ `CachedStorage` 데코레이터
+- C4 ⏳ `setup` config + wizard에 GitHub 분기
+- C5 ⏳ `refresh_knowledge_cache` MCP tool
+- C6 ⏳ docs (README/PLANS/FEATURES) 갱신
+
