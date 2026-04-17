@@ -8,6 +8,7 @@ dependencies = [
     "httpx>=0.28.1",
     "python-frontmatter>=1.0",
     "questionary>=2.1.1",
+    "tomli-w>=1.2.0",
     "typer>=0.24.1",
 ]
 
