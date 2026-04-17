@@ -206,3 +206,25 @@ import 경로가 의존성 그래프와 어긋나 있던 문제를 해결.
 - C5 ⏳ `refresh_knowledge_cache` MCP tool
 - C6 ⏳ docs (README/PLANS/FEATURES) 갱신
 
+## M17. local backend default를 XDG_DATA_HOME 기반으로
+
+기본 storage 경로를 `~/Documents/know-ops-mcp` → `$XDG_DATA_HOME/know-ops-mcp` (env 부재 시 `~/.local/share/know-ops-mcp`)로 변경.
+
+- 이유:
+  - `~/Documents`는 사용자가 만든 문서를 두는 영역. 앱이 자기 데이터를 default로 dump하는 관습 위반.
+  - 우리는 이미 config(`~/.config/`), cache(`~/.cache/`)를 XDG 기반으로 두고 있음. data만 비표준이면 일관성 깨짐.
+  - Linux에서 `~/Documents` 자체가 부재하거나 로케일에 따라 다른 이름일 수 있음 (영문 하드코딩의 함정).
+- 검토한 대안:
+  - `~/Documents/<app>` 유지 — 발견성 우선. Obsidian/Logseq 선례. 기각: 우리는 다기기(GitHub) 시나리오가 1차 가치라 발견성 비중 작음.
+  - `~/.<app>/` 홈 직속 dotfile — 단순하지만 구식. 기각.
+  - default 없음(필수 입력) — 첫 setup UX 마찰. 기각.
+  - `platformdirs` 라이브러리 — 진짜 크로스플랫폼이지만 의존성 +1. 1차 타겟이 macOS/Linux라 과함.
+- 인정한 trade-off: `~/Documents` 대비 발견성 ↓. 완화책:
+  - setup wizard가 default 경로를 prompt에 노출 → 사용자가 그 자리에서 변경 가능.
+  - README/FEATURES에 default 위치 명시.
+- 변경:
+  - `know_ops_mcp/storage/backends/internal/local.py`에 `default_data_dir()` 추가 (XDG_DATA_HOME 존중, `default_cache_dir`과 대칭).
+  - `know_ops_mcp/storage/__init__.py`에서 re-export.
+  - `setup/wizard.py`의 `DEFAULT_LOCAL_PATH` 상수 제거 → `default_data_dir()` 호출.
+  - README/FEATURES의 default 경로 표기 갱신.
+
