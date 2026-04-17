@@ -15,7 +15,7 @@ def ops():
 
 def _seed(ops: KnowOps, **overrides) -> str:
     defaults = dict(
-        unique_name="alpha",
+        knowledge_key="alpha",
         title="Alpha title",
         description="Alpha description",
         content="alpha body",
@@ -23,13 +23,13 @@ def _seed(ops: KnowOps, **overrides) -> str:
     )
     defaults.update(overrides)
     ops.write(**defaults)
-    return defaults["unique_name"]
+    return defaults["knowledge_key"]
 
 
 class TestWrite:
     def test_creates_new_entry_with_today_dates(self, ops):
         knowledge = ops.write(
-            unique_name="x",
+            knowledge_key="x",
             title="T",
             description="D",
             content="C",
@@ -52,7 +52,7 @@ class TestWrite:
                 return _D()
 
         monkeypatch.setattr(ko_mod, "date", _FakeDate)
-        ops.write(unique_name="x", title="T", description="D", content="v1")
+        ops.write(knowledge_key="x", title="T", description="D", content="v1")
 
         class _FakeDate2:
             @staticmethod
@@ -64,7 +64,7 @@ class TestWrite:
                 return _D()
 
         monkeypatch.setattr(ko_mod, "date", _FakeDate2)
-        updated = ops.write(unique_name="x", title="T2", description="D2", content="v2")
+        updated = ops.write(knowledge_key="x", title="T2", description="D2", content="v2")
         assert updated.created == "2020-01-01"
         assert updated.updated == "2026-04-15"
         assert updated.title == "T2"
@@ -73,12 +73,12 @@ class TestWrite:
     def test_unknown_type_raises_value_error(self, ops):
         with pytest.raises(ValueError, match="Unknown knowledge type"):
             ops.write(
-                unique_name="x", title="T", description="D", content="C", type="nope"
+                knowledge_key="x", title="T", description="D", content="C", type="nope"
             )
 
-    def test_invalid_unique_name_raises_validation_error(self, ops):
+    def test_invalid_knowledge_key_raises_validation_error(self, ops):
         with pytest.raises(ValidationError):
-            ops.write(unique_name="Bad Name", title="T", description="D", content="C")
+            ops.write(knowledge_key="Bad Name", title="T", description="D", content="C")
 
 
 class TestRead:
@@ -89,60 +89,60 @@ class TestRead:
         _seed(ops)
         result = ops.read("alpha")
         assert result is not None
-        assert result.unique_name == "alpha"
+        assert result.knowledge_key == "alpha"
         assert result.content == "alpha body"
 
 
 class TestSearch:
     def test_empty_query_matches_all(self, ops):
-        _seed(ops, unique_name="a")
-        _seed(ops, unique_name="b")
+        _seed(ops, knowledge_key="a")
+        _seed(ops, knowledge_key="b")
         assert len(ops.search("")) == 2
 
     def test_keyword_in_title(self, ops):
-        _seed(ops, unique_name="a", title="Pizza recipe")
-        _seed(ops, unique_name="b", title="Salad recipe")
+        _seed(ops, knowledge_key="a", title="Pizza recipe")
+        _seed(ops, knowledge_key="b", title="Salad recipe")
         results = ops.search("pizza")
-        assert [r["unique_name"] for r in results] == ["a"]
+        assert [r["knowledge_key"] for r in results] == ["a"]
 
     def test_keyword_in_content(self, ops):
-        _seed(ops, unique_name="a", content="contains pineapple")
-        _seed(ops, unique_name="b", content="just cheese")
+        _seed(ops, knowledge_key="a", content="contains pineapple")
+        _seed(ops, knowledge_key="b", content="just cheese")
         results = ops.search("pineapple")
-        assert [r["unique_name"] for r in results] == ["a"]
+        assert [r["knowledge_key"] for r in results] == ["a"]
 
     def test_case_insensitive(self, ops):
-        _seed(ops, unique_name="a", title="UPPERCASE")
+        _seed(ops, knowledge_key="a", title="UPPERCASE")
         results = ops.search("uppercase")
         assert len(results) == 1
 
     def test_tags_filter_intersection(self, ops):
-        _seed(ops, unique_name="a", tags=["work", "urgent"])
-        _seed(ops, unique_name="b", tags=["personal"])
-        _seed(ops, unique_name="c", tags=["work"])
+        _seed(ops, knowledge_key="a", tags=["work", "urgent"])
+        _seed(ops, knowledge_key="b", tags=["personal"])
+        _seed(ops, knowledge_key="c", tags=["work"])
         results = ops.search("", tags=["work"])
-        assert {r["unique_name"] for r in results} == {"a", "c"}
+        assert {r["knowledge_key"] for r in results} == {"a", "c"}
 
     def test_limit_truncates(self, ops):
         for i in range(5):
-            _seed(ops, unique_name=f"e{i}")
+            _seed(ops, knowledge_key=f"e{i}")
         assert len(ops.search("", limit=2)) == 2
 
 
 class TestListAll:
     def test_returns_summaries(self, ops):
-        _seed(ops, unique_name="a")
-        _seed(ops, unique_name="b")
+        _seed(ops, knowledge_key="a")
+        _seed(ops, knowledge_key="b")
         results = ops.list_all()
-        names = {r["unique_name"] for r in results}
+        names = {r["knowledge_key"] for r in results}
         assert names == {"a", "b"}
         assert all("content" not in r for r in results)
 
     def test_tag_filter(self, ops):
-        _seed(ops, unique_name="a", tags=["x"])
-        _seed(ops, unique_name="b", tags=["y"])
+        _seed(ops, knowledge_key="a", tags=["x"])
+        _seed(ops, knowledge_key="b", tags=["y"])
         results = ops.list_all(tag="x")
-        assert [r["unique_name"] for r in results] == ["a"]
+        assert [r["knowledge_key"] for r in results] == ["a"]
 
 
 class TestDelete:

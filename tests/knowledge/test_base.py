@@ -7,7 +7,7 @@ from know_ops_mcp.knowledge.general import GeneralKnowledge
 
 def _entry(**overrides) -> GeneralKnowledge:
     base = dict(
-        unique_name="sample-entry",
+        knowledge_key="sample-entry",
         title="Sample",
         description="Sample entry.",
         created="2026-04-15",
@@ -35,11 +35,11 @@ def test_register_rejects_class_without_typed_default():
         register(Bad)
 
 
-def test_unique_name_pattern_enforced():
+def test_knowledge_key_pattern_enforced():
     with pytest.raises(ValidationError):
-        _entry(unique_name="Has Spaces")
+        _entry(knowledge_key="Has Spaces")
     with pytest.raises(ValidationError):
-        _entry(unique_name="Mixed_Case")
+        _entry(knowledge_key="Mixed_Case")
 
 
 def test_serialize_deserialize_round_trip_via_base():
@@ -54,7 +54,7 @@ def test_summary_excludes_dates_and_content():
     entry = _entry(tags=["x"])
     summary = entry.summary()
     assert summary == {
-        "unique_name": "sample-entry",
+        "knowledge_key": "sample-entry",
         "type": "general",
         "title": "Sample",
         "description": "Sample entry.",

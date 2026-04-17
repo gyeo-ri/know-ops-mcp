@@ -18,7 +18,7 @@ mcp = FastMCP(
     instructions=(
         "You are connected to know-ops-mcp, a shared knowledge store. "
         "Use these tools to search, read, write, list, and delete knowledge entries. "
-        "Each entry is identified by a unique_name (lowercase, hyphens, digits) "
+        "Each entry is identified by a knowledge_key (lowercase, hyphens, digits) "
         "agreed upon with the user."
     ),
 )
@@ -33,7 +33,7 @@ def _format_validation_error(exc: ValidationError) -> str:
 def search_knowledge(query: str, tags: list[str] | None = None, limit: int = 10) -> str:
     """Search stored knowledge entries by keyword and optional tag filter.
 
-    Match target: unique_name, title, description, content (case-insensitive).
+    Match target: knowledge_key, title, description, content (case-insensitive).
     An empty query matches every entry.
 
     Args:
@@ -42,7 +42,7 @@ def search_knowledge(query: str, tags: list[str] | None = None, limit: int = 10)
         limit: Maximum number of results to return (default 10).
 
     Returns:
-        JSON list of summaries (unique_name, type, title, description, tags).
+        JSON list of summaries (knowledge_key, type, title, description, tags).
     """
     results = know_ops.search(query, tags=tags, limit=limit)
     if not results:
@@ -51,24 +51,24 @@ def search_knowledge(query: str, tags: list[str] | None = None, limit: int = 10)
 
 
 @mcp.tool
-def read_knowledge(unique_name: str) -> str:
-    """Read a specific knowledge entry by its unique_name.
+def read_knowledge(knowledge_key: str) -> str:
+    """Read a specific knowledge entry by its knowledge_key.
 
     Args:
-        unique_name: The unique identifier of the entry (e.g. 'python-async-patterns').
+        knowledge_key: The unique identifier of the entry (e.g. 'python-async-patterns').
 
     Returns:
         Full entry content including frontmatter, or an error message if not found.
     """
-    knowledge = know_ops.read(unique_name)
+    knowledge = know_ops.read(knowledge_key)
     if knowledge is None:
-        return f"Knowledge '{unique_name}' not found."
+        return f"Knowledge '{knowledge_key}' not found."
     return knowledge.model_dump_json(indent=2)
 
 
 @mcp.tool
 def write_knowledge(
-    unique_name: str,
+    knowledge_key: str,
     title: str,
     description: str,
     content: str | None = None,
@@ -79,7 +79,7 @@ def write_knowledge(
     """Create or update a knowledge entry.
 
     Args:
-        unique_name: Unique identifier. Lowercase letters, digits, and hyphens only
+        knowledge_key: Unique identifier. Lowercase letters, digits, and hyphens only
             (e.g. 'python-async-patterns').
         title: Human-readable title shown when reading the entry.
         description: One-line summary explaining what this entry is about. Used by
@@ -104,7 +104,7 @@ def write_knowledge(
         return "Error: Either 'content' or 'content_path' must be provided."
     try:
         knowledge = know_ops.write(
-            unique_name=unique_name,
+            knowledge_key=knowledge_key,
             title=title,
             description=description,
             content=content,
@@ -135,7 +135,7 @@ def list_knowledge(tag: str | None = None) -> str:
 
 
 @mcp.tool
-def refresh_knowledge_cache(unique_name: str | None = None) -> str:
+def refresh_knowledge_cache(knowledge_key: str | None = None) -> str:
     """Refresh the local cache against the upstream storage.
 
     Use this after a knowledge entry has been modified on another device or
@@ -143,32 +143,32 @@ def refresh_knowledge_cache(unique_name: str | None = None) -> str:
     version. Has no effect when the backend does not use caching.
 
     Args:
-        unique_name: If provided, refresh only this entry. Otherwise refresh
+        knowledge_key: If provided, refresh only this entry. Otherwise refresh
             the entire cache.
 
     Returns:
         Confirmation message.
     """
-    know_ops.refresh(unique_name)
-    if unique_name:
-        return f"Cache refreshed for '{unique_name}'."
+    know_ops.refresh(knowledge_key)
+    if knowledge_key:
+        return f"Cache refreshed for '{knowledge_key}'."
     return "Cache refreshed."
 
 
 @mcp.tool
-def delete_knowledge(unique_name: str) -> str:
-    """Delete a knowledge entry by its unique_name.
+def delete_knowledge(knowledge_key: str) -> str:
+    """Delete a knowledge entry by its knowledge_key.
 
     Args:
-        unique_name: The unique identifier of the entry to delete.
+        knowledge_key: The unique identifier of the entry to delete.
 
     Returns:
         Confirmation or error message.
     """
-    deleted = know_ops.delete(unique_name)
+    deleted = know_ops.delete(knowledge_key)
     if deleted:
-        return f"Knowledge '{unique_name}' deleted."
-    return f"Knowledge '{unique_name}' not found."
+        return f"Knowledge '{knowledge_key}' deleted."
+    return f"Knowledge '{knowledge_key}' not found."
 
 
 def bootstrap() -> None:

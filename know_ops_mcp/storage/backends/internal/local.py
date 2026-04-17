@@ -1,4 +1,4 @@
-"""Local directory storage. One `.md` file per unique_name under a base directory."""
+"""Local directory storage. One `.md` file per knowledge_key under a base directory."""
 
 from __future__ import annotations
 

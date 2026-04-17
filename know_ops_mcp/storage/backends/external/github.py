@@ -1,6 +1,6 @@
 """GitHub repository storage via the REST API.
 
-One `<unique_name>.md` file per entry under an optional subdirectory of a
+One `<knowledge_key>.md` file per entry under an optional subdirectory of a
 single branch. Network-only; pair with `CachedStorage` to avoid hitting the
 API on every read.
 

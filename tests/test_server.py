@@ -14,9 +14,9 @@ def fresh_storage():
     storage.configure(MemoryStorage())
 
 
-def _seed(unique_name: str = "alpha", **overrides) -> None:
+def _seed(knowledge_key: str = "alpha", **overrides) -> None:
     payload = dict(
-        unique_name=unique_name,
+        knowledge_key=knowledge_key,
         title="T",
         description="D",
         content="C",
@@ -36,7 +36,7 @@ class TestSearchTool:
         result = server.search_knowledge("findme")
         parsed = json.loads(result)
         assert len(parsed) == 1
-        assert parsed[0]["unique_name"] == "alpha"
+        assert parsed[0]["knowledge_key"] == "alpha"
         assert "content" not in parsed[0]
 
 
@@ -47,29 +47,29 @@ class TestReadTool:
     def test_existing_returns_full_json(self):
         _seed("alpha", content="body")
         parsed = json.loads(server.read_knowledge("alpha"))
-        assert parsed["unique_name"] == "alpha"
+        assert parsed["knowledge_key"] == "alpha"
         assert parsed["content"] == "body"
 
 
 class TestWriteTool:
     def test_success_returns_full_json(self):
         result = server.write_knowledge(
-            unique_name="alpha", title="T", description="D", content="C"
+            knowledge_key="alpha", title="T", description="D", content="C"
         )
         parsed = json.loads(result)
-        assert parsed["unique_name"] == "alpha"
+        assert parsed["knowledge_key"] == "alpha"
         assert parsed["type"] == "general"
 
-    def test_invalid_unique_name_returns_validation_message(self):
+    def test_invalid_knowledge_key_returns_validation_message(self):
         result = server.write_knowledge(
-            unique_name="Bad Name", title="T", description="D", content="C"
+            knowledge_key="Bad Name", title="T", description="D", content="C"
         )
         assert result.startswith("Validation failed:")
-        assert "unique_name" in result
+        assert "knowledge_key" in result
 
     def test_unknown_type_returns_error_message(self):
         result = server.write_knowledge(
-            unique_name="alpha",
+            knowledge_key="alpha",
             title="T",
             description="D",
             content="C",
@@ -82,7 +82,7 @@ class TestWriteTool:
         md = tmp_path / "note.md"
         md.write_text("body from file", encoding="utf-8")
         result = server.write_knowledge(
-            unique_name="alpha", title="T", description="D",
+            knowledge_key="alpha", title="T", description="D",
             content_path=str(md),
         )
         parsed = json.loads(result)
@@ -92,21 +92,21 @@ class TestWriteTool:
         md = tmp_path / "note.md"
         md.write_text("x", encoding="utf-8")
         result = server.write_knowledge(
-            unique_name="alpha", title="T", description="D",
+            knowledge_key="alpha", title="T", description="D",
             content="inline", content_path=str(md),
         )
         assert "not both" in result
 
     def test_content_path_missing_file_returns_error(self):
         result = server.write_knowledge(
-            unique_name="alpha", title="T", description="D",
+            knowledge_key="alpha", title="T", description="D",
             content_path="/tmp/nonexistent-9999.md",
         )
         assert "File not found" in result
 
     def test_neither_content_nor_path_returns_error(self):
         result = server.write_knowledge(
-            unique_name="alpha", title="T", description="D",
+            knowledge_key="alpha", title="T", description="D",
         )
         assert "must be provided" in result
 
@@ -119,13 +119,13 @@ class TestListTool:
         _seed("a")
         _seed("b")
         parsed = json.loads(server.list_knowledge())
-        assert {p["unique_name"] for p in parsed} == {"a", "b"}
+        assert {p["knowledge_key"] for p in parsed} == {"a", "b"}
 
     def test_tag_filter(self):
         _seed("a", tags=["x"])
         _seed("b", tags=["y"])
         parsed = json.loads(server.list_knowledge(tag="x"))
-        assert [p["unique_name"] for p in parsed] == ["a"]
+        assert [p["knowledge_key"] for p in parsed] == ["a"]
 
 
 class TestDeleteTool:

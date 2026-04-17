@@ -1,4 +1,4 @@
-"""In-memory storage implementation. Stores .md strings keyed by unique_name."""
+"""In-memory storage implementation. Stores .md strings keyed by knowledge_key."""
 
 from __future__ import annotations
 

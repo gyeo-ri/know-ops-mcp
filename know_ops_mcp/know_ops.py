@@ -26,21 +26,21 @@ class KnowOps:
             if tags and not set(tags) & set(knowledge.tags):
                 continue
             haystack = " ".join([
-                knowledge.unique_name, knowledge.title, knowledge.description, knowledge.content
+                knowledge.knowledge_key, knowledge.title, knowledge.description, knowledge.content
             ]).lower()
             if q in haystack:
                 results.append(knowledge.summary())
         return results[:limit]
 
-    def read(self, unique_name: str) -> BaseKnowledge | None:
-        text = self._storage.read(unique_name)
+    def read(self, knowledge_key: str) -> BaseKnowledge | None:
+        text = self._storage.read(knowledge_key)
         if text is None:
             return None
         return BaseKnowledge.deserialize(text)
 
     def write(
         self,
-        unique_name: str,
+        knowledge_key: str,
         title: str,
         description: str,
         content: str,
@@ -49,12 +49,12 @@ class KnowOps:
     ) -> BaseKnowledge:
         knowledge_cls = for_type(type)
         today = date.today().isoformat()
-        existing = self._storage.read(unique_name)
+        existing = self._storage.read(knowledge_key)
         created = (
             BaseKnowledge.deserialize(existing).created if existing else today
         )
         knowledge = knowledge_cls(
-            unique_name=unique_name,
+            knowledge_key=knowledge_key,
             type=type,
             title=title,
             description=description,
@@ -63,7 +63,7 @@ class KnowOps:
             updated=today,
             content=content,
         )
-        self._storage.write(unique_name, knowledge.serialize())
+        self._storage.write(knowledge_key, knowledge.serialize())
         return knowledge
 
     def list_all(self, tag: str | None = None) -> list[dict]:
@@ -75,11 +75,11 @@ class KnowOps:
             results.append(knowledge.summary())
         return results
 
-    def delete(self, unique_name: str) -> bool:
-        return self._storage.delete(unique_name)
+    def delete(self, knowledge_key: str) -> bool:
+        return self._storage.delete(knowledge_key)
 
-    def refresh(self, unique_name: str | None = None) -> None:
-        self._storage.refresh(unique_name)
+    def refresh(self, knowledge_key: str | None = None) -> None:
+        self._storage.refresh(knowledge_key)
 
 
 know_ops = KnowOps(_default_storage)

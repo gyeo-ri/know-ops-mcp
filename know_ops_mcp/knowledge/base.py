@@ -7,13 +7,13 @@ from pydantic import BaseModel, Field
 from know_ops_mcp.knowledge import serializer
 
 
-_SUMMARY_FIELDS = {"unique_name", "type", "title", "description", "tags"}
+_SUMMARY_FIELDS = {"knowledge_key", "type", "title", "description", "tags"}
 
 _REGISTRY: dict[str, type["BaseKnowledge"]] = {}
 
 
 class BaseKnowledge(BaseModel):
-    unique_name: str = Field(pattern=r"^[a-z0-9-]+$")
+    knowledge_key: str = Field(pattern=r"^[a-z0-9-]+$")
     type: str
     title: str = Field(min_length=1)
     description: str = Field(min_length=1)
@@ -25,6 +25,8 @@ class BaseKnowledge(BaseModel):
     @classmethod
     def deserialize(cls, text: str) -> "BaseKnowledge":
         meta, content = serializer.deserialize(text)
+        if "unique_name" in meta and "knowledge_key" not in meta:
+            meta["knowledge_key"] = meta.pop("unique_name")
         type_ = meta.get("type", "general")
         return for_type(type_)(**meta, content=content)
 

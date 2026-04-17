@@ -98,7 +98,7 @@ Branch defaults to `main` and subdirectory to the repo root; edit `config.toml` 
 
 ### Caching
 
-GitHub reads are cached under `~/.cache/know-ops-mcp/` (XDG-aware) so repeated lookups don't hit the API. Writes are immediately reflected in the cache. The cache has no expiry — use the `refresh_knowledge_cache` tool to invalidate it after another machine (or you yourself, via the GitHub web UI / git push) modifies an entry. You can ask the LLM to "refresh the knowledge cache" or "refresh `<unique_name>`" to trigger this.
+GitHub reads are cached under `~/.cache/know-ops-mcp/` (XDG-aware) so repeated lookups don't hit the API. Writes are immediately reflected in the cache. The cache has no expiry — use the `refresh_knowledge_cache` tool to invalidate it after another machine (or you yourself, via the GitHub web UI / git push) modifies an entry. You can ask the LLM to "refresh the knowledge cache" or "refresh `<knowledge_key>`" to trigger this.
 
 ## Verify
 
@@ -136,7 +136,7 @@ Each entry is one Markdown file with YAML frontmatter:
 
 ```yaml
 ---
-unique_name: python-async-patterns
+knowledge_key: python-async-patterns
 type: general
 title: Python async patterns
 description: One-line summary used for search and LLM relevance ranking.
@@ -148,7 +148,7 @@ updated: '2026-04-15'
 Free-form Markdown body.
 ```
 
-For the local backend, files live under the storage directory you chose during setup (named `<unique_name>.md`). The default is `$XDG_DATA_HOME/know-ops-mcp` (typically `~/.local/share/know-ops-mcp`); you can override it at the prompt.
+For the local backend, files live under the storage directory you chose during setup (named `<knowledge_key>.md`). The default is `$XDG_DATA_HOME/know-ops-mcp` (typically `~/.local/share/know-ops-mcp`); you can override it at the prompt.
 For the GitHub backend, the same files live in your repo (under the configured subdirectory, root by default), and a content-addressed copy is mirrored under `~/.cache/know-ops-mcp/`.
 
 ## Scope and design
