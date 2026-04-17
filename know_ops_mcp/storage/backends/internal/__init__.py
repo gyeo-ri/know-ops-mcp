@@ -1,7 +1,7 @@
 """Internal storage backends.
 
 No external dependency. Usable for testing, temporary use, or single-device
-production. Can also be passed as the `cache` argument to ExternalStorage.
+production.
 """
 
 from __future__ import annotations
