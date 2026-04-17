@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import sys
+from pathlib import Path
 
 from fastmcp import FastMCP
 from pydantic import ValidationError
@@ -70,7 +71,8 @@ def write_knowledge(
     unique_name: str,
     title: str,
     description: str,
-    content: str,
+    content: str | None = None,
+    content_path: str | None = None,
     tags: list[str] | None = None,
     type: str = "general",
 ) -> str:
@@ -83,12 +85,23 @@ def write_knowledge(
         description: One-line summary explaining what this entry is about. Used by
             LLMs to decide whether this entry is relevant before reading the full body.
         content: Markdown body of the entry.
+        content_path: Local file path to read the markdown body from. Use this
+            instead of content when the body is large. Mutually exclusive with content.
         tags: Optional list of tags for categorization.
         type: Knowledge type discriminator (default 'general').
 
     Returns:
         JSON of the saved entry, or a validation error message.
     """
+    if content and content_path:
+        return "Error: Provide either 'content' or 'content_path', not both."
+    if content_path:
+        path = Path(content_path).expanduser()
+        if not path.is_file():
+            return f"Error: File not found: {content_path}"
+        content = path.read_text(encoding="utf-8")
+    if not content:
+        return "Error: Either 'content' or 'content_path' must be provided."
     try:
         knowledge = know_ops.write(
             unique_name=unique_name,

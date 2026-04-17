@@ -78,6 +78,38 @@ class TestWriteTool:
         assert result.startswith("Error:")
         assert "Unknown knowledge type" in result
 
+    def test_content_path_reads_file(self, tmp_path):
+        md = tmp_path / "note.md"
+        md.write_text("body from file", encoding="utf-8")
+        result = server.write_knowledge(
+            unique_name="alpha", title="T", description="D",
+            content_path=str(md),
+        )
+        parsed = json.loads(result)
+        assert parsed["content"] == "body from file"
+
+    def test_content_and_content_path_both_given_returns_error(self, tmp_path):
+        md = tmp_path / "note.md"
+        md.write_text("x", encoding="utf-8")
+        result = server.write_knowledge(
+            unique_name="alpha", title="T", description="D",
+            content="inline", content_path=str(md),
+        )
+        assert "not both" in result
+
+    def test_content_path_missing_file_returns_error(self):
+        result = server.write_knowledge(
+            unique_name="alpha", title="T", description="D",
+            content_path="/tmp/nonexistent-9999.md",
+        )
+        assert "File not found" in result
+
+    def test_neither_content_nor_path_returns_error(self):
+        result = server.write_knowledge(
+            unique_name="alpha", title="T", description="D",
+        )
+        assert "must be provided" in result
+
 
 class TestListTool:
     def test_empty_returns_message(self):
