@@ -1,3 +1,9 @@
+---
+purpose: 구현 완료된 기능의 카탈로그 (코드 → 의도 매핑)
+audience: [humans, agents]
+update_when: 기능 추가/제거/시그니처 변경 시
+---
+
 # Features
 
 구현 완료된 기능을 기록합니다.

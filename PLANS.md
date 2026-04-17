@@ -1,3 +1,9 @@
+---
+purpose: 아키텍처 결정의 현재 상태 + 다음 작업 후보
+audience: [humans, agents]
+update_when: 새 결정/기각/TODO 추가·완료 시
+---
+
 # Plans
 
 ## 확정된 아키텍처

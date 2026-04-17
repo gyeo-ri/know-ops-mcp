@@ -1,3 +1,9 @@
+---
+purpose: 외부 사용자에게 know-ops-mcp 설치/사용법 안내
+audience: humans
+update_when: 사용자 facing 동작/명령/설치 방법이 바뀔 때
+---
+
 # know-ops-mcp
 
 Shared knowledge MCP server for any LLM client. Stores entries as plain `.md` files with frontmatter, so you can read, edit, and version-control them outside the tool.
