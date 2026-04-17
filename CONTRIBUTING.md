@@ -42,7 +42,7 @@ All tests are offline; the GitHub backend is mocked with `pytest-httpx`. See [te
 - `feat:` user-visible new behavior
 - `fix:` bug fix
 - `refactor:` internal restructure with no behavior change
-- `docs:` README / PLANS / FEATURES / HISTORY / CONTRIBUTING
+- `docs:` README / AGENTS / CONTRIBUTING / docs/*
 - `test:` test-only changes
 - `chore:` deps, build config, tooling
 
@@ -66,7 +66,7 @@ Substantive design choices land as a numbered milestone in [docs/CHANGELOG.md](d
 
 Use this for: storage layer changes, configuration model changes, distribution/install model changes, any new third-party dependency.
 
-Routine refactors and bug fixes don't need a HISTORY entry — the commit message is enough.
+Routine refactors and bug fixes don't need a CHANGELOG entry — the commit message is enough.
 
 ## Pull requests
 
