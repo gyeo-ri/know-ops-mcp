@@ -168,8 +168,11 @@ For the GitHub backend, the same files live in your repo (under the configured s
 ```bash
 git clone https://github.com/gyeo-ri/cursor-memo-re
 cd cursor-memo-re
-uv sync
+uv sync --dev
 uv run know-ops-mcp setup
+uv run pytest
 ```
 
 The wizard will detect that you're running from a local checkout and produce a snippet using `uvx --from /absolute/path/to/checkout know-ops-mcp` so changes you make under the checkout are picked up immediately on the next MCP server spawn.
+
+For testing conventions, commit style, and PR workflow, see [CONTRIBUTING.md](CONTRIBUTING.md).
