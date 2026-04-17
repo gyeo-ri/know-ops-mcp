@@ -72,6 +72,6 @@ Routine refactors and bug fixes don't need a HISTORY entry — the commit messag
 
 - Branch from `main`.
 - Prefer many small focused commits to one giant commit. If the diff covers multiple concerns, split it.
-- If the change motivates a HISTORY milestone, link it from the PR description.
+- If the change motivates a CHANGELOG milestone, link it from the PR description.
 - Run `uv run pytest` before pushing.
-- Keep `README.md`, `PLANS.md`, `FEATURES.md` honest — if your change makes them stale, update them in the same PR.
+- Keep `README.md`, `docs/ARCHITECTURE.md`, `docs/ROADMAP.md` honest — if your change makes them stale, update them in the same PR.

@@ -165,9 +165,11 @@ For the GitHub backend, the same files live in your repo (under the configured s
 
 ## Documentation
 
-- Architecture and roadmap: [PLANS.md](PLANS.md)
-- Implemented features: [FEATURES.md](FEATURES.md)
-- Change history: [CHANGELOG.md](CHANGELOG.md)
+- Architecture and module layout: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
+- Roadmap and rejected alternatives: [docs/ROADMAP.md](docs/ROADMAP.md)
+- Change history (design milestones): [CHANGELOG.md](CHANGELOG.md)
+- Contributing: [CONTRIBUTING.md](CONTRIBUTING.md)
+- Agent context: [AGENTS.md](AGENTS.md)
 
 ## Development
 
