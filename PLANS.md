@@ -50,12 +50,15 @@ cursor-memo-re/                       ← 워크스페이스 / git repo (이름 
 
 > 워크스페이스 디렉토리(`cursor-memo-re/`)와 GitHub repo 이름은 유지. Python 패키지 / dist / CLI / MCP 서버명은 모두 `know-ops-mcp`로 통일.
 
-### 배포 방식: 로컬 설치형
+### 배포 방식: `uvx` 기반 install-less 실행
 
-- 각 기기에 CLI 도구로 설치 (`pip install know-ops-mcp` / `uv tool install know-ops-mcp`)
-- MCP 클라이언트가 로컬 프로세스로 실행 (stdio)
-- FastAPI 등 별도 서버 래핑 불필요 (FastMCP가 HTTP transport 내장)
-- 나중에 원격 필요 시 transport만 `streamable-http`로 전환 가능 (코드 변경 없음)
+- MCP 생태계 컨벤션(`uvx <pkg>` / `npx -y <pkg>`)을 따른다 — 사용자가 별도 install 단계 없이 mcp.json 한 번 작성하고 끝.
+- 사용자 프리리퀴짓: `uv` 만 깔려 있으면 됨. `uvx`가 가상환경/의존성/Python 버전 모두 처리.
+- 클라이언트(Cursor 등)가 `uvx know-ops-mcp` 를 stdio 로 spawn → MCP 서버 동작.
+- 현재 PyPI 미배포 → `uvx --from git+<repo> know-ops-mcp` 로 동등 UX. PyPI 배포 후 `--from` 만 떼면 됨.
+- wizard가 `direct_url.json` 으로 자기 설치 출처를 감지해 PyPI / git URL / local checkout 각각에 맞는 mcp.json 스니펫을 자동 생성 (M19).
+- FastAPI 등 별도 서버 래핑 불필요 (FastMCP가 HTTP transport 내장).
+- 나중에 원격 필요 시 transport만 `streamable-http`로 전환 가능 (코드 변경 없음).
 
 ### Storage 선정: GitHub Private Repo (다기기 시나리오)
 
@@ -80,7 +83,7 @@ cursor-memo-re/                       ← 워크스페이스 / git repo (이름 
   - 금지: 외부 도구의 설정 파일 (Cursor `~/.cursor/mcp.json`, Claude Desktop config 등) — 쓰기는 물론 **읽기도 X**
 - 이 레포는 **MCP 서버**일 뿐이다. 누가 우리를 호출하는지(어떤 LLM 클라이언트인지)는 알 필요도, 알아서도 안 된다.
   - 설치/등록 확인은 각 클라이언트 책임
-  - 본 도구는 MCP 표준 등록 스니펫만 제공 (`{"mcpServers": {"know-ops-mcp": {"command": "know-ops-mcp"}}}`)
+  - 본 도구는 MCP 표준 등록 스니펫만 제공 (`{"mcpServers": {"know-ops-mcp": {"command": "uvx", "args": ["know-ops-mcp"]}}}` 형태; wizard가 설치 출처에 맞춰 args 자동 조정)
 - 이유: 책임 경계 명확 / 외부 스키마 변경에 영향 받지 않음 / 사용자 다른 MCP 설정 유실 위험 0
 
 ## Storage 클래스 계층
@@ -104,7 +107,7 @@ BaseStorage (ABC)                        read/write/delete/list_all
 ## 미결정 / 미구현 (TODO)
 
 - [ ] 새 Knowledge 타입 추가 (예: ConversationKnowledge, ProjectKnowledge) — 추상화는 완료, 실제 타입은 필요 시점에
-- [ ] LocalDirectoryStorage / CachedStorage 원자적 쓰기 (temp file + rename)
+- [ ] PyPI publish — 마치면 wizard 스니펫이 자동으로 `uvx know-ops-mcp` 형태로 단축됨 (M19)
 - [ ] 테스트 코드 (pytest 도입)
 - [ ] 100k entry 초과 repo 지원 (현재는 Trees API truncated 응답에서 fail-fast)
 - [ ] 캐시 conflict 처리 — 현재 last-write-wins. 충돌 빈발 시 sha 비교 도입 검토
@@ -128,3 +131,5 @@ BaseStorage (ABC)                        read/write/delete/list_all
 | Cache TTL (시간 기반) | 임의 stale window, 사용자 의도 표현 불가. 무한 TTL + 명시적 refresh tool (M16) |
 | Cache list 결과 저장 | 새 remote entry 발견까지 refresh 필요 → UX 부담. list는 항상 fresh, 콘텐츠만 캐시 (M16) |
 | GitHub Contents API listing | 페이지네이션 불가 1000 entry 한도. Trees API로 ~100k 단일 호출 (M16) |
+| `uv tool install` 권장 (글로벌 PATH 등록) | 일반 CLI 툴 표준이지만 MCP 서버 생태계는 install-less(`uvx`/`npx`)로 수렴. "사전 install 잊으면 ENOENT" 마찰을 없애는 쪽 채택 (M19) |
+| `mcp.json` 에 venv 절대경로 직접 명시 | 사용자가 손으로 `.venv/bin/...` 적어야 함. UX 실패 (M19) |

@@ -6,23 +6,33 @@ Two backends: a local directory for single-machine use, or a GitHub repository f
 
 ## Requirements
 
-- Python 3.11+
+- [uv](https://docs.astral.sh/uv/getting-started/installation/) — provides `uvx`, which both launches the server and installs/manages its Python environment on first run.
 - An MCP-compatible client (Cursor, Claude Desktop, Continue, ...)
 
-## Install
+Don't have `uv` yet? Install it first:
 
 ```bash
-uv tool install know-ops-mcp
-# or
-pip install know-ops-mcp
+# macOS / Linux
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Windows (PowerShell)
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
 ```
+
+Other install methods (Homebrew, winget, pipx, ...) are listed at <https://docs.astral.sh/uv/getting-started/installation/>.
+
+If any command below errors with `command not found: uvx`, you skipped this step.
 
 ## First-time setup
 
-Run the interactive wizard once:
+Run the interactive wizard once. Pick whichever invocation matches your install:
 
 ```bash
-know-ops-mcp setup
+# Not yet on PyPI — use the git URL form for now:
+uvx --from git+https://github.com/gyeo-ri/cursor-memo-re know-ops-mcp setup
+
+# Once published to PyPI:
+uvx know-ops-mcp setup
 ```
 
 It will:
@@ -30,15 +40,33 @@ It will:
 1. Ask which backend to use (`local` or `github`)
 2. Ask backend-specific questions (path, or repo URL + token)
 3. Save your config to `~/.config/know-ops-mcp/config.toml` with mode `0600`
-4. Print an MCP registration snippet that you copy into your client's config
+4. Print an MCP registration snippet — already shaped for your install (it auto-detects whether you're on PyPI, a git URL, or a local checkout) — that you copy into your client's config
 
-The snippet looks like this:
+The snippet looks like this (PyPI form):
 
 ```json
 {
   "mcpServers": {
     "know-ops-mcp": {
-      "command": "know-ops-mcp"
+      "command": "uvx",
+      "args": ["know-ops-mcp"]
+    }
+  }
+}
+```
+
+…or like this if you ran setup via the git URL above:
+
+```json
+{
+  "mcpServers": {
+    "know-ops-mcp": {
+      "command": "uvx",
+      "args": [
+        "--from",
+        "git+https://github.com/gyeo-ri/cursor-memo-re",
+        "know-ops-mcp"
+      ]
     }
   }
 }
@@ -94,6 +122,8 @@ Try asking the LLM to write a note, then ask another session to read it back.
 
 ## Commands
 
+Prefix each with `uvx --from <source>` (or just `uvx` once on PyPI), matching the install you used above.
+
 | Command | What it does |
 | --- | --- |
 | `know-ops-mcp` | Same as `serve`. This is what your MCP client invokes as a subprocess. |
@@ -136,8 +166,10 @@ For the GitHub backend, the same files live in your repo (under the configured s
 ## Development
 
 ```bash
-git clone <repo-url> cursor-memo-re
+git clone https://github.com/gyeo-ri/cursor-memo-re
 cd cursor-memo-re
 uv sync
 uv run know-ops-mcp setup
 ```
+
+The wizard will detect that you're running from a local checkout and produce a snippet using `uvx --from /absolute/path/to/checkout know-ops-mcp` so changes you make under the checkout are picked up immediately on the next MCP server spawn.

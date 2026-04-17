@@ -97,17 +97,28 @@ token = "ghp_xxxxxxxxxxxxxxxx"
 
 ### MCP 등록 스니펫
 
-마법사가 출력하는 표준 형식 (Cursor / Claude Desktop / Continue 등 공통):
+마법사가 출력하는 표준 형식 (Cursor / Claude Desktop / Continue 등 공통). `command`/`args`는 wizard가 자기 설치 출처(`importlib.metadata` PEP 610 `direct_url.json`)를 보고 자동 결정.
+
+| 설치 출처 | 출력 args |
+| --- | --- |
+| PyPI (정식 배포) | `["know-ops-mcp"]` |
+| git URL (`uvx --from git+...`) | `["--from", "git+<url>@<commit>", "know-ops-mcp"]` |
+| 로컬 체크아웃 (`uvx --from /path` 또는 `uv tool install --editable`) | `["--from", "<absolute path>", "know-ops-mcp"]` |
+
+PyPI 배포 후의 표준형:
 
 ```json
 {
   "mcpServers": {
     "know-ops-mcp": {
-      "command": "know-ops-mcp"
+      "command": "uvx",
+      "args": ["know-ops-mcp"]
     }
   }
 }
 ```
+
+`uvx`가 PATH에 없으면 마법사가 install 안내(`https://docs.astral.sh/uv/...`)를 출력. 자동 설치는 안 함(외부 side-effect 정책).
 
 ## know_ops (애플리케이션 레이어)
 

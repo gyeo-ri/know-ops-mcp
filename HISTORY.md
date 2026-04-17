@@ -228,6 +228,28 @@ import 경로가 의존성 그래프와 어긋나 있던 문제를 해결.
   - `setup/wizard.py`의 `DEFAULT_LOCAL_PATH` 상수 제거 → `default_data_dir()` 호출.
   - README/FEATURES의 default 경로 표기 갱신.
 
+## M19. 배포/실행 모델 — `uvx` 채택, wizard 출처 자동 감지
+
+배포 프리폴 모델로 `uvx <package>` 패턴 채택. wizard가 `_print_snippet()`에서 PEP 610 `direct_url.json`을 읽어 PyPI / git URL / local path를 구분하고 각각에 맞는 `command/args` 스니펫을 자동 생성.
+
+- 동기: 첫 실 검증 시 `mcp.json: {"command": "know-ops-mcp"}` 가 `spawn ENOENT` 로 실패. 원인은 Cursor가 띄우는 자식 프로세스 PATH에 venv bin이 없음. 사용자에게 절대경로를 손으로 적게 하는 건 UX 실패.
+- 검토한 대안:
+  - `uv tool install` 권장 — 일반 CLI 툴(ruff/black) 표준 패턴. PATH 등록은 깔끔하나 "사전 install 단계 필요"라는 마찰. MCP 서버 생태계는 install-less 패턴(`uvx`/`npx`)으로 수렴 중. 기각.
+  - `uv run --directory <repo>` — 개발자 친화적이지만 절대경로 노출 + 일반 사용자에겐 의미 불명. 기각(개발자 옵션으로 README에만 언급).
+  - Docker — 격리 강하지만 무거움. 기각.
+- 채택한 패턴: `uvx <package>` (PyPI 배포 후) / `uvx --from git+<url> <package>` (현 시점, 미배포). MCP 공식 서버들(`mcp-server-fetch`, `mcp-server-time` 등)과 동일한 형태.
+- wizard 자동화: 사용자가 어떻게 know-ops-mcp를 실행했는지에 따라 스니펫이 달라야 하는 부담을 wizard가 흡수.
+  - PyPI 설치 (no `direct_url.json`) → `["know-ops-mcp"]`
+  - git URL (`vcs_info`) → `["--from", "git+<url>@<commit>", "know-ops-mcp"]`
+  - 로컬 체크아웃 (`dir_info`) → `["--from", "<absolute path>", "know-ops-mcp"]`
+- 부재 감지: `shutil.which("uvx")`가 None이면 wizard 끝에 install 안내(`https://docs.astral.sh/uv/...`) 출력. 자동 설치는 안 함(외부 side-effect 정책).
+- uv 의존성을 사용자가 닿는 모든 표면에 일관되게 안내:
+  1. README Requirements 섹션 — macOS/Linux/Windows install 명령 인라인.
+  2. CLI `--help` epilog — 권장 호출 + uv 미설치 시 install URL.
+  3. Wizard 스니펫 출력 — `shutil.which` 체크 후 부재 시 명령 + URL 출력.
+  - wizard 안의 체크는 사실상 "pip install로 들어왔지만 uv는 안 깐 사용자" 한정으로만 의미가 있음(uvx 통해 진입했다면 항상 PATH에 잡힘). 그래도 cheap defensive code로 유지.
+- 보류: PyPI publish (별도 마일스톤). 그 전까지 README는 git URL 형태를 1차 안내로 노출.
+
 ## M18. 디스크 쓰기 원자성 — temp file + rename
 
 `disk.write`를 단순 `Path.write_text`에서 `temp file → Path.replace` 패턴으로 전환.
