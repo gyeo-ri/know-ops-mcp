@@ -92,12 +92,12 @@ path = "~/Documents/know-ops-mcp"
 
 | 모듈 | 역할 |
 | --- | --- |
-| `know_ops_mcp/know_ops/__init__.py` | `KnowOps` 서비스 클래스 (`search/read/write/list_all/delete`) + 기본 싱글턴 `know_ops` |
-| `know_ops_mcp/know_ops/knowledge/__init__.py` | `BaseKnowledge`, `GeneralKnowledge`, `register`, `for_type` re-export |
-| `know_ops_mcp/know_ops/knowledge/base.py` | `BaseKnowledge` (공통 필드 + serialize/deserialize/summary + 타입 dispatch 레지스트리) |
-| `know_ops_mcp/know_ops/knowledge/general.py` | `GeneralKnowledge(BaseKnowledge)` (type="general") |
-| `know_ops_mcp/know_ops/knowledge/serializer.py` | 직렬화 유틸 (`serialize`, `deserialize`). 현재 구현: YAML frontmatter + md |
-| `know_ops_mcp/know_ops/storage/...` | 인프라 (아래 Storage 섹션 참조) |
+| `know_ops_mcp/know_ops.py` | `KnowOps` 서비스 클래스 (`search/read/write/list_all/delete`) + 기본 싱글턴 `know_ops` |
+| `know_ops_mcp/knowledge/__init__.py` | `BaseKnowledge`, `GeneralKnowledge`, `register`, `for_type` re-export |
+| `know_ops_mcp/knowledge/base.py` | `BaseKnowledge` (공통 필드 + serialize/deserialize/summary + 타입 dispatch 레지스트리) |
+| `know_ops_mcp/knowledge/general.py` | `GeneralKnowledge(BaseKnowledge)` (type="general") |
+| `know_ops_mcp/knowledge/serializer.py` | 직렬화 유틸 (`serialize`, `deserialize`). 현재 구현: YAML frontmatter + md |
+| `know_ops_mcp/storage/...` | 인프라 (아래 Storage 섹션 참조) |
 
 ### Knowledge 타입 시스템
 
@@ -161,11 +161,11 @@ BaseStorage (ABC)
 
 | 모듈 | 역할 |
 | --- | --- |
-| `know_ops_mcp/know_ops/storage/base.py` | `BaseStorage` ABC (`read`, `write`, `delete`, `list_all`) |
-| `know_ops_mcp/know_ops/storage/__init__.py` | `StorageService` (backend 위임 + `configure`) + 기본 싱글턴 `storage` |
-| `know_ops_mcp/know_ops/storage/backends/internal/__init__.py` | `InternalStorage` marker (외부 의존 X 그룹) |
-| `know_ops_mcp/know_ops/storage/backends/internal/memory.py` | `MemoryStorage(InternalStorage)` |
-| `know_ops_mcp/know_ops/storage/backends/internal/local.py` | `LocalDirectoryStorage(InternalStorage)` |
+| `know_ops_mcp/storage/base.py` | `BaseStorage` ABC (`read`, `write`, `delete`, `list_all`) |
+| `know_ops_mcp/storage/__init__.py` | `StorageService` (backend 위임 + `configure`) + 기본 싱글턴 `storage` |
+| `know_ops_mcp/storage/backends/internal/__init__.py` | `InternalStorage` marker (외부 의존 X 그룹) |
+| `know_ops_mcp/storage/backends/internal/memory.py` | `MemoryStorage(InternalStorage)` |
+| `know_ops_mcp/storage/backends/internal/local.py` | `LocalDirectoryStorage(InternalStorage)` |
 
 ### LocalDirectoryStorage
 
@@ -176,7 +176,7 @@ BaseStorage (ABC)
 ### 호출 패턴
 
 ```python
-from know_ops_mcp.know_ops.storage import storage, LocalDirectoryStorage
+from know_ops_mcp.storage import storage, LocalDirectoryStorage
 
 storage.configure(LocalDirectoryStorage("~/Documents/know-ops-mcp"))
 storage.write("foo", "...")

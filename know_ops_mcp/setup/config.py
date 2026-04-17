@@ -8,8 +8,8 @@ from pathlib import Path
 
 from pydantic import BaseModel
 
-from know_ops_mcp.know_ops.storage.base import BaseStorage
-from know_ops_mcp.know_ops.storage.backends.internal.local import LocalDirectoryStorage
+from know_ops_mcp.storage.base import BaseStorage
+from know_ops_mcp.storage.backends.internal.local import LocalDirectoryStorage
 
 
 class StorageConfig(BaseModel):

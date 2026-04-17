@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pydantic import BaseModel, Field
 
-from know_ops_mcp.know_ops.knowledge import serializer
+from know_ops_mcp.knowledge import serializer
 
 
 _SUMMARY_FIELDS = {"unique_name", "type", "title", "description", "tags"}

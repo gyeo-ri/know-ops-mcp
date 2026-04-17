@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-from know_ops_mcp.know_ops.storage.base import BaseStorage
-from know_ops_mcp.know_ops.storage.backends.internal.local import LocalDirectoryStorage
-from know_ops_mcp.know_ops.storage.backends.internal.memory import MemoryStorage
+from know_ops_mcp.storage.base import BaseStorage
+from know_ops_mcp.storage.backends.internal.local import LocalDirectoryStorage
+from know_ops_mcp.storage.backends.internal.memory import MemoryStorage
 
 
 class StorageService:

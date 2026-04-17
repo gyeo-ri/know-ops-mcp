@@ -10,7 +10,7 @@ import json
 
 import questionary
 
-from know_ops_mcp.know_ops.storage.backends.internal.local import LocalDirectoryStorage
+from know_ops_mcp.storage.backends.internal.local import LocalDirectoryStorage
 from know_ops_mcp.setup.config import Config, StorageConfig
 
 DEFAULT_PATH = "~/Documents/know-ops-mcp"

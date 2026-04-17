@@ -6,7 +6,7 @@ production. Can also be passed as the `cache` argument to ExternalStorage.
 
 from __future__ import annotations
 
-from know_ops_mcp.know_ops.storage.base import BaseStorage
+from know_ops_mcp.storage.base import BaseStorage
 
 
 class InternalStorage(BaseStorage):

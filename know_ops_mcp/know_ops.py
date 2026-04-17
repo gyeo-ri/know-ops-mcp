@@ -8,8 +8,8 @@ from __future__ import annotations
 
 from datetime import date
 
-from know_ops_mcp.know_ops.knowledge import BaseKnowledge, for_type
-from know_ops_mcp.know_ops.storage import StorageService, storage as _default_storage
+from know_ops_mcp.knowledge import BaseKnowledge, for_type
+from know_ops_mcp.storage import StorageService, storage as _default_storage
 
 
 class KnowOps:

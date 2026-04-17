@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Literal
 
-from know_ops_mcp.know_ops.knowledge.base import BaseKnowledge, register
+from know_ops_mcp.knowledge.base import BaseKnowledge, register
 
 
 @register

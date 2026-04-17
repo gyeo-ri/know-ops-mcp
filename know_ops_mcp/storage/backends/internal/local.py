@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from know_ops_mcp.know_ops.storage.backends.internal import InternalStorage
+from know_ops_mcp.storage.backends.internal import InternalStorage
 
 
 class LocalDirectoryStorage(InternalStorage):

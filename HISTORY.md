@@ -113,3 +113,16 @@
 - **유지**: GitHub repo 이름, 워크스페이스 루트 디렉토리(`cursor-memo-re/`), 내부 `know_ops` 모듈명(M7 결정)
 - 표기 컨벤션: snake_case = `know_ops_mcp`, kebab-case = `know-ops-mcp`, CamelCase brand = `KnowOpsMCP`
 - 위 M1~M13 항목은 당시 시점 기록이므로 옛 이름을 그대로 둠
+
+## M15. 패키지 레이아웃 평탄화 — `knowledge`/`storage`를 `know_ops` 밖으로
+
+import 경로가 의존성 그래프와 어긋나 있던 문제를 해결.
+
+- 증상: `setup`은 `know_ops` 오케스트레이터를 쓰지 않으면서 storage에 닿으려 `know_ops_mcp.know_ops.storage.backends.internal.local`까지 통과해야 했음. 디렉토리는 부모-자식, 실제 코드는 형제 의존성.
+- 결정: 평탄화. `know_ops`(KnowOps 클래스)는 application service일 뿐 subsystem 컨테이너가 아님.
+- 변경:
+  - `know_ops_mcp/know_ops/knowledge/` → `know_ops_mcp/knowledge/`
+  - `know_ops_mcp/know_ops/storage/` → `know_ops_mcp/storage/`
+  - `know_ops_mcp/know_ops/__init__.py`(85 LOC 단일 파일) → `know_ops_mcp/know_ops.py` 모듈 (패키지로 둘 이유 없음)
+  - 11개 `from know_ops_mcp.know_ops.X` import 일괄 치환
+- 효과: setup의 storage import 한 단계 짧아짐, server.py 입장에서 `know_ops`/`storage`가 시각적으로도 형제로 보임, layer별 단위테스트 분리 용이

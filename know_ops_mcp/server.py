@@ -9,7 +9,7 @@ from fastmcp import FastMCP
 from pydantic import ValidationError
 
 from know_ops_mcp.know_ops import know_ops
-from know_ops_mcp.know_ops.storage import storage
+from know_ops_mcp.storage import storage
 from know_ops_mcp.setup.config import Config
 
 mcp = FastMCP(
