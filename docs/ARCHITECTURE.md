@@ -6,7 +6,7 @@ update_when: 모듈 추가·제거, 계약 변경, 정책 변경 시
 
 # Architecture
 
-설계 결정의 *근거*는 [`../CHANGELOG.md`](../CHANGELOG.md) (M번호). 본 문서는 *현재 상태*만 기술. 미해결 항목은 [`ROADMAP.md`](ROADMAP.md).
+설계 결정의 *근거*는 [`CHANGELOG.md`](CHANGELOG.md) (M번호). 본 문서는 *현재 상태*만 기술. 미해결 항목은 [`ROADMAP.md`](ROADMAP.md).
 
 ## 구성요소
 
@@ -51,10 +51,11 @@ cursor-memo-re/                       ← 워크스페이스 / git repo (이름 
 │       ├── wizard.py                 ← 대화형 마법사 + 진단 (재실행 시 read-only 모드)
 │       └── config.py                 ← Config(toml) + load/save + to_storage_backend
 ├── pyproject.toml
-├── README.md  CONTRIBUTING.md  AGENTS.md  CHANGELOG.md
+├── README.md  CONTRIBUTING.md  AGENTS.md
 └── docs/
     ├── ARCHITECTURE.md  (이 문서)
-    └── ROADMAP.md
+    ├── ROADMAP.md
+    └── CHANGELOG.md
 ```
 
 > 워크스페이스 디렉토리(`cursor-memo-re/`)와 GitHub repo 이름은 유지. Python 패키지 / dist / CLI / MCP 서버명은 모두 `know-ops-mcp`로 통일 (M14).
@@ -225,7 +226,7 @@ BaseStorage (ABC)                        read/write/delete/list_all
 | `delete(name)` | backend.delete 후 캐시 evict |
 | `refresh(name=None)` | 캐시 파일 제거. 다음 read 때 fetch |
 
-설계 근거 + 검토한 대안: [`../CHANGELOG.md`](../CHANGELOG.md) M16.
+설계 근거 + 검토한 대안: [`CHANGELOG.md`](CHANGELOG.md) M16.
 
 ### 호출 패턴
 

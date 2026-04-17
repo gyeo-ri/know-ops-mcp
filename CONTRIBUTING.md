@@ -52,7 +52,7 @@ Subject is imperative and lowercase after the prefix. Body explains *why*, not *
 
 ## Documenting design changes
 
-Substantive design choices land as a numbered milestone in [CHANGELOG.md](CHANGELOG.md):
+Substantive design choices land as a numbered milestone in [docs/CHANGELOG.md](docs/CHANGELOG.md):
 
 ```
 ## M<N>. <one-line title>

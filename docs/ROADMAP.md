@@ -21,7 +21,7 @@ update_when: TODO 추가/완료/blocked, 새 대안 검토 후 기각, 결정이
 
 ## 검토 후 기각된 대안
 
-같은 결정을 다시 논의하지 않기 위한 기록. 더 자세한 근거는 [`../CHANGELOG.md`](../CHANGELOG.md)의 해당 milestone 참조.
+같은 결정을 다시 논의하지 않기 위한 기록. 더 자세한 근거는 [`CHANGELOG.md`](CHANGELOG.md)의 해당 milestone 참조.
 
 | 대안 | 기각 이유 |
 | --- | --- |
