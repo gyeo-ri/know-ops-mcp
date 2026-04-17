@@ -109,6 +109,7 @@ BaseStorage (ABC)                        read/write/delete/list_all
 - [ ] 새 Knowledge 타입 추가 (예: ConversationKnowledge, ProjectKnowledge) — 추상화는 완료, 실제 타입은 필요 시점에
 - [ ] PyPI publish — 마치면 wizard 스니펫이 자동으로 `uvx know-ops-mcp` 형태로 단축됨 (M19)
 - [ ] 테스트 코드 (pytest 도입)
+- [ ] coverage 측정 (`pytest-cov`) — 테스트가 충분히 쌓인 시점(T2 이후쯤)에 약점 가시화 용도. 임계치/CI gate는 별도 결정.
 - [ ] 100k entry 초과 repo 지원 (현재는 Trees API truncated 응답에서 fail-fast)
 - [ ] 캐시 conflict 처리 — 현재 last-write-wins. 충돌 빈발 시 sha 비교 도입 검토
 - [ ] 원격 배포 전환 (streamable-http transport)
