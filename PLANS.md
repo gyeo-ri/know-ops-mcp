@@ -108,7 +108,7 @@ BaseStorage (ABC)                        read/write/delete/list_all
 - 단일 기기 prod: `LocalDirectoryStorage(path)`
 - 다기기 공유: `CachedStorage(GitHubStorage(repo_url, token, ...), cache_dir=...)`
 
-설계 결정/근거의 단일 출처: [HISTORY.md M16](HISTORY.md).
+설계 결정/근거의 단일 출처: [CHANGELOG.md M16](CHANGELOG.md).
 
 ## 미결정 / 미구현 (TODO)
 

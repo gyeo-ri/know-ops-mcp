@@ -248,7 +248,7 @@ BaseStorage (ABC)                        read/write/delete/list_all
 | `delete(name)` | backend.delete 후 캐시 evict |
 | `refresh(name=None)` | 캐시 파일 제거. 다음 read 때 fetch |
 
-설계 근거 + 검토한 대안: [HISTORY.md M16](HISTORY.md).
+설계 근거 + 검토한 대안: [CHANGELOG.md M16](CHANGELOG.md).
 
 ### 호출 패턴
 

@@ -167,7 +167,7 @@ For the GitHub backend, the same files live in your repo (under the configured s
 
 - Architecture and roadmap: [PLANS.md](PLANS.md)
 - Implemented features: [FEATURES.md](FEATURES.md)
-- Change history: [HISTORY.md](HISTORY.md)
+- Change history: [CHANGELOG.md](CHANGELOG.md)
 
 ## Development
 
