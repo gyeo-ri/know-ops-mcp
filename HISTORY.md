@@ -262,4 +262,52 @@ import 경로가 의존성 그래프와 어긋나 있던 문제를 해결.
   - 동일 이름의 다음 write가 `.tmp`를 재생성하며 자연 정리.
 - 보류: fsync (full durability). 이 도구는 노트 저장이라 atomicity로 충분. 향후 transactional 요구 생기면 추가.
 
+## M20. 테스트 인프라 정착
+
+수동 검증만으로 변경의 안전성을 보장하기 어려운 시점에 pytest 기반 단위 테스트를 도입. T1~T3에 걸쳐 영역을 확장했고, 라이브 테스트는 일찍 도입했다가 비용/가치 분석 후 명시적으로 폐기. 최종 156 테스트 통과.
+
+### 1. Pytest 도입 (T1)
+
+- pyproject `[dependency-groups] dev`에 `pytest` 추가, `[tool.pytest.ini_options]` 기본 설정.
+- 1차 커버: `serializer`, `knowledge/base`, `setup/config`, `storage/disk`, `storage/backends/internal/{memory,local}`.
+- 사용한 fixture 패턴: `tmp_path` (실 `~`은 절대 안 씀), `monkeypatch` (env var/외부 모듈/시간 함수 등 격리).
+
+### 2. GitHub 백엔드 wire-level 테스트 (T2)
+
+- 처음에는 `respx` 채택. `httpx`를 가로채는 mock으로 GitHubStorage의 200/404/5xx/sha-conflict/rate-limit retry/encoding 등 분기 커버.
+- `time.sleep` autouse monkeypatch로 retry 테스트 가속.
+
+### 3. 애플리케이션/오케스트레이터 테스트 (T3)
+
+- `KnowOps` 서비스: search/list 필터, write upsert(`created` 보존), delete/refresh 위임.
+- `server.py` MCP tool wrapper: 6개 도구의 success/error 메시지 + JSON 포맷 + `bootstrap` 경고/configure 분기.
+- `setup/wizard.py` 순수 헬퍼: PEP 610 `direct_url.json` 파싱(PyPI/git+commit/git+ref/local), uvx args 합성, snippet warning, existing-config 출력.
+- `setup/cli.py` typer dispatch: serve/setup/default/`--help` epilog.
+- `storage/__init__.py` StorageService 파사드: refresh getattr 분기, configure 백엔드 교체.
+- 의도적 미커버: `wizard.run()` interactive flow (questionary 모킹이 brittle해서 ROI 낮음).
+
+### 4. 라이브 GitHub 테스트 — 도입했다가 폐기
+
+도입 동기: `@pytest.mark.live`로 표시된 별도 슈트가 실제 `gyeo-ri/knowledge-base` repo에 commit하면서 wire 가정을 검증. `python-dotenv`로 `.env`의 `KNOW_OPS_MCP_TEST_*` 자동 로드, 전용 PAT, `tests/results/` 서브디렉토리 격리까지 설계.
+
+검토한 다른 충돌 회피 안:
+- 전용 `pytest-results` 브랜치 — main 격리는 깔끔하지만 commit/blob이 영구 누적, repo size 증가, GitHub UI 표면 오염.
+- `run-<uuid>` 경로 prefix — main이 dirty, cleanup 실패 시 orphan.
+
+폐기 결정: T2의 mock이 모든 분기를 이미 커버. 솔로 프로젝트라 CI 자동 라이브 검증 가치 작고, manual smoke 1회로 충분. 남는 건 main에 테스트 커밋 누적 부담뿐.
+
+결과: `live` 마커, `tests/conftest.py` (.env 로더), `python-dotenv` dev dep, `.env.example` 모두 제거. CONTRIBUTING/tests README는 "offline 한 슈트 + 릴리스 전 manual smoke"로 단순화.
+
+### 5. Mock 라이브러리 — respx → pytest-httpx
+
+T2에서 respx로 시작했지만 라이브 폐기 후 mock의 비중이 커진 시점에 재검토.
+
+- 검토 축: 패키지 안정성/사용량(둘 다 production), API ergonomics, pytest 결합도.
+- 결정 근거: pytest-httpx는 pytest 플러그인 전용이라 fixture 자동 주입(decorator 불필요), strict-by-default(미사용 응답/미등록 URL = 자동 실패)가 stale mock을 일찍 잡음. respx 대비 pattern matching DSL은 약하지만 우리가 쓰는 분기엔 충분.
+- 부수 효과: `test_absent_returns_false_without_delete_call`이 "DELETE 응답 등록 + `call_count==0` assert"에서 "등록 안 함 + `get_requests(method='DELETE')==[]` assert"로 더 정직해짐.
+- 인정한 trade-off: respx의 Route DSL(regex 라우팅, `route.calls[i]` introspection)은 잃음. 미래에 더 풍부한 매칭이 필요해지면 재고.
+
+### 6. 보류
+
+- `pytest-cov` 도입 — 정량 측정으로 사각지대 가시화. T3 직후에도 도입할 수 있으나, 임계치/CI gate 정책을 같이 결정해야 의미가 있어 별도 결정으로 미룸.
 
