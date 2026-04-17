@@ -29,6 +29,12 @@ class StorageService:
     def list_all(self) -> dict[str, str]:
         return self._backend.list_all()
 
+    def refresh(self, name: str | None = None) -> None:
+        fn = getattr(self._backend, "refresh", None)
+        if fn is None:
+            return
+        fn(name)
+
 
 storage = StorageService(MemoryStorage())
 

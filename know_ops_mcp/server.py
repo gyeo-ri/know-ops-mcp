@@ -122,6 +122,27 @@ def list_knowledge(tag: str | None = None) -> str:
 
 
 @mcp.tool
+def refresh_knowledge_cache(unique_name: str | None = None) -> str:
+    """Refresh the local cache against the upstream storage.
+
+    Use this after a knowledge entry has been modified on another device or
+    directly in the upstream repository, so subsequent reads see the latest
+    version. Has no effect when the backend does not use caching.
+
+    Args:
+        unique_name: If provided, refresh only this entry. Otherwise refresh
+            the entire cache.
+
+    Returns:
+        Confirmation message.
+    """
+    know_ops.refresh(unique_name)
+    if unique_name:
+        return f"Cache refreshed for '{unique_name}'."
+    return "Cache refreshed."
+
+
+@mcp.tool
 def delete_knowledge(unique_name: str) -> str:
     """Delete a knowledge entry by its unique_name.
 

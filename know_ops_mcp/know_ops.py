@@ -78,6 +78,9 @@ class KnowOps:
     def delete(self, unique_name: str) -> bool:
         return self._storage.delete(unique_name)
 
+    def refresh(self, unique_name: str | None = None) -> None:
+        self._storage.refresh(unique_name)
+
 
 know_ops = KnowOps(_default_storage)
 
