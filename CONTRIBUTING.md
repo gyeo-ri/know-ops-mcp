@@ -10,7 +10,7 @@ cd cursor-memo-re
 uv sync --dev
 ```
 
-`uv sync --dev` installs runtime + dev dependencies (`pytest`, `respx`).
+`uv sync --dev` installs runtime + dev dependencies (`pytest`, `pytest-httpx`).
 
 To exercise the CLI from your checkout:
 
@@ -25,7 +25,7 @@ uv run know-ops-mcp serve
 uv run pytest
 ```
 
-All tests are offline; the GitHub backend is mocked with `respx`. See [tests/README.md](tests/README.md) for layout and fixture conventions.
+All tests are offline; the GitHub backend is mocked with `pytest-httpx`. See [tests/README.md](tests/README.md) for layout and fixture conventions.
 
 ## Code conventions
 
