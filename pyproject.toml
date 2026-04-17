@@ -18,6 +18,7 @@ know-ops-mcp = "know_ops_mcp.setup.cli:app"
 [dependency-groups]
 dev = [
     "pytest>=8.0",
+    "respx>=0.22",
 ]
 
 [build-system]
