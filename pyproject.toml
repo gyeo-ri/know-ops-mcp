@@ -18,6 +18,7 @@ know-ops-mcp = "know_ops_mcp.setup.cli:app"
 [dependency-groups]
 dev = [
     "pytest>=8.0",
+    "pytest-cov>=6.0",
     "pytest-httpx>=0.36",
 ]
 
@@ -31,3 +32,10 @@ packages = ["know_ops_mcp"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-ra --strict-markers"
+
+[tool.coverage.run]
+source = ["know_ops_mcp"]
+
+[tool.coverage.report]
+show_missing = true
+skip_empty = true
