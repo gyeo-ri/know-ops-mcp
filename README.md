@@ -148,6 +148,16 @@ updated: '2026-04-15'
 Free-form Markdown body.
 ```
 
+`knowledge_key` supports forward slashes for hierarchical organization (like S3 keys):
+
+```
+python-async-patterns          # flat key
+know-ops-mcp/history           # project-scoped
+coding-style/python/linting    # multi-level nesting
+```
+
+On disk and in GitHub, slashes become directory separators (`know-ops-mcp/history.md`). Use `list_knowledge(prefix="know-ops-mcp/")` to list entries under a specific path.
+
 For the local backend, files live under the storage directory you chose during setup (named `<knowledge_key>.md`). The default is `$XDG_DATA_HOME/know-ops-mcp` (typically `~/.local/share/know-ops-mcp`); you can override it at the prompt.
 For the GitHub backend, the same files live in your repo (under the configured subdirectory, root by default), and a content-addressed copy is mirrored under `~/.cache/know-ops-mcp/`.
 

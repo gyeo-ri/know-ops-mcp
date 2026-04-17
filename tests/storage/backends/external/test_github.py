@@ -280,18 +280,21 @@ class TestListVersions:
         )
         assert storage.list_versions() == {"a": "sha-a"}
 
-    def test_filters_nested_files_at_root(self, httpx_mock, storage):
+    def test_includes_nested_files_as_slash_keys(self, httpx_mock, storage):
         httpx_mock.add_response(
             method="GET",
             url=_trees_url(),
             json=self._tree_payload([
                 {"type": "blob", "path": "top.md", "sha": "sha-top"},
-                {"type": "blob", "path": "nested/inner.md", "sha": "ignored"},
+                {"type": "blob", "path": "nested/inner.md", "sha": "sha-inner"},
             ]),
         )
-        assert storage.list_versions() == {"top": "sha-top"}
+        assert storage.list_versions() == {
+            "top": "sha-top",
+            "nested/inner": "sha-inner",
+        }
 
-    def test_subdirectory_includes_only_direct_children(
+    def test_subdirectory_includes_nested_children(
         self, httpx_mock, storage_with_subdir
     ):
         httpx_mock.add_response(
@@ -299,11 +302,14 @@ class TestListVersions:
             url=_trees_url(),
             json=self._tree_payload([
                 {"type": "blob", "path": "kb/topic.md", "sha": "sha-topic"},
-                {"type": "blob", "path": "kb/sub/deeper.md", "sha": "ignored"},
+                {"type": "blob", "path": "kb/sub/deeper.md", "sha": "sha-deeper"},
                 {"type": "blob", "path": "other/x.md", "sha": "ignored"},
             ]),
         )
-        assert storage_with_subdir.list_versions() == {"topic": "sha-topic"}
+        assert storage_with_subdir.list_versions() == {
+            "topic": "sha-topic",
+            "sub/deeper": "sha-deeper",
+        }
 
     def test_truncated_response_raises(self, httpx_mock, storage):
         httpx_mock.add_response(

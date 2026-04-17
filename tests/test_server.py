@@ -67,6 +67,15 @@ class TestWriteTool:
         assert result.startswith("Validation failed:")
         assert "knowledge_key" in result
 
+    def test_hierarchical_key_round_trip(self):
+        result = server.write_knowledge(
+            knowledge_key="proj/topic", title="T", description="D", content="C"
+        )
+        parsed = json.loads(result)
+        assert parsed["knowledge_key"] == "proj/topic"
+        read_result = json.loads(server.read_knowledge("proj/topic"))
+        assert read_result["content"] == "C"
+
     def test_unknown_type_returns_error_message(self):
         result = server.write_knowledge(
             knowledge_key="alpha",
@@ -126,6 +135,13 @@ class TestListTool:
         _seed("b", tags=["y"])
         parsed = json.loads(server.list_knowledge(tag="x"))
         assert [p["knowledge_key"] for p in parsed] == ["a"]
+
+    def test_prefix_filter(self):
+        _seed("proj/a")
+        _seed("proj/b")
+        _seed("other")
+        parsed = json.loads(server.list_knowledge(prefix="proj/"))
+        assert {p["knowledge_key"] for p in parsed} == {"proj/a", "proj/b"}
 
 
 class TestDeleteTool:

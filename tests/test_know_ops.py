@@ -144,6 +144,20 @@ class TestListAll:
         results = ops.list_all(tag="x")
         assert [r["knowledge_key"] for r in results] == ["a"]
 
+    def test_prefix_filter(self, ops):
+        _seed(ops, knowledge_key="proj/alpha")
+        _seed(ops, knowledge_key="proj/beta")
+        _seed(ops, knowledge_key="other")
+        results = ops.list_all(prefix="proj/")
+        assert {r["knowledge_key"] for r in results} == {"proj/alpha", "proj/beta"}
+
+    def test_prefix_and_tag_combined(self, ops):
+        _seed(ops, knowledge_key="proj/a", tags=["x"])
+        _seed(ops, knowledge_key="proj/b", tags=["y"])
+        _seed(ops, knowledge_key="other", tags=["x"])
+        results = ops.list_all(tag="x", prefix="proj/")
+        assert [r["knowledge_key"] for r in results] == ["proj/a"]
+
 
 class TestDelete:
     def test_existing_returns_true(self, ops):

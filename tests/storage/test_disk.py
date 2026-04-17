@@ -74,3 +74,39 @@ def test_clear_removes_only_md_files(tmp_path):
     disk.clear(tmp_path)
     assert disk.list_all(tmp_path) == {}
     assert (tmp_path / "keep.txt").is_file()
+
+
+class TestNestedPaths:
+    def test_write_creates_subdirectories(self, tmp_path):
+        disk.write(tmp_path, "project/topic", "body")
+        assert (tmp_path / "project" / "topic.md").is_file()
+
+    def test_read_nested(self, tmp_path):
+        disk.write(tmp_path, "a/b/c", "deep")
+        assert disk.read(tmp_path, "a/b/c") == "deep"
+
+    def test_list_all_returns_slash_keys(self, tmp_path):
+        disk.write(tmp_path, "flat", "f")
+        disk.write(tmp_path, "dir/nested", "n")
+        disk.write(tmp_path, "dir/sub/deep", "d")
+        result = disk.list_all(tmp_path)
+        assert result == {"flat": "f", "dir/nested": "n", "dir/sub/deep": "d"}
+
+    def test_delete_nested_prunes_empty_parents(self, tmp_path):
+        disk.write(tmp_path, "a/b/c", "body")
+        assert disk.delete(tmp_path, "a/b/c") is True
+        assert not (tmp_path / "a").exists()
+
+    def test_delete_nested_keeps_non_empty_parents(self, tmp_path):
+        disk.write(tmp_path, "a/b", "keep")
+        disk.write(tmp_path, "a/c", "remove")
+        disk.delete(tmp_path, "a/c")
+        assert (tmp_path / "a").is_dir()
+        assert disk.read(tmp_path, "a/b") == "keep"
+
+    def test_clear_removes_nested_md_and_prunes_dirs(self, tmp_path):
+        disk.write(tmp_path, "x/y", "body")
+        disk.write(tmp_path, "x/z/w", "body2")
+        disk.clear(tmp_path)
+        assert disk.list_all(tmp_path) == {}
+        assert not (tmp_path / "x").exists()

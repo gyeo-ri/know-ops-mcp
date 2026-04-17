@@ -42,6 +42,19 @@ def test_knowledge_key_pattern_enforced():
         _entry(knowledge_key="Mixed_Case")
 
 
+def test_knowledge_key_allows_slashes():
+    e = _entry(knowledge_key="project/topic")
+    assert e.knowledge_key == "project/topic"
+    e2 = _entry(knowledge_key="a/b/c")
+    assert e2.knowledge_key == "a/b/c"
+
+
+@pytest.mark.parametrize("bad_key", ["/leading", "trailing/", "a//b", "/", "a/b/"])
+def test_knowledge_key_rejects_malformed_slashes(bad_key):
+    with pytest.raises(ValidationError):
+        _entry(knowledge_key=bad_key)
+
+
 def test_serialize_deserialize_round_trip_via_base():
     original = _entry(tags=["a", "b"])
     text = original.serialize()

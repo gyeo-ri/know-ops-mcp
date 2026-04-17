@@ -66,11 +66,15 @@ class KnowOps:
         self._storage.write(knowledge_key, knowledge.serialize())
         return knowledge
 
-    def list_all(self, tag: str | None = None) -> list[dict]:
+    def list_all(
+        self, tag: str | None = None, prefix: str | None = None
+    ) -> list[dict]:
         results = []
         for text in self._storage.list_all().values():
             knowledge = BaseKnowledge.deserialize(text)
             if tag and tag not in knowledge.tags:
+                continue
+            if prefix and not knowledge.knowledge_key.startswith(prefix):
                 continue
             results.append(knowledge.summary())
         return results

@@ -17,7 +17,6 @@ from __future__ import annotations
 import base64
 import re
 import time
-from pathlib import PurePosixPath
 from urllib.parse import urlparse
 
 import httpx
@@ -130,16 +129,20 @@ class GitHubStorage(ExternalStorage):
         r.raise_for_status()
         return True
 
+    def _to_key(self, path: str) -> str:
+        rel = path[len(self._subdirectory) + 1:] if self._subdirectory else path
+        return rel.removesuffix(".md")
+
     def list_versions(self) -> dict[str, str]:
-        return {PurePosixPath(e["path"]).stem: e["sha"] for e in self._list_tree()}
+        return {self._to_key(e["path"]): e["sha"] for e in self._list_tree()}
 
     def list_all(self) -> dict[str, str]:
         result: dict[str, str] = {}
         for entry in self._list_tree():
-            name = PurePosixPath(entry["path"]).stem
-            content = self.read(name)
+            key = self._to_key(entry["path"])
+            content = self.read(key)
             if content is not None:
-                result[name] = content
+                result[key] = content
         return result
 
     def _list_tree(self) -> list[dict]:
@@ -166,13 +169,7 @@ class GitHubStorage(ExternalStorage):
             path = item.get("path", "")
             if not path.endswith(".md"):
                 continue
-            if prefix:
-                if not path.startswith(prefix):
-                    continue
-                rest = path[len(prefix):]
-            else:
-                rest = path
-            if "/" in rest:
+            if prefix and not path.startswith(prefix):
                 continue
             entries.append({"path": path, "sha": item["sha"]})
         return entries

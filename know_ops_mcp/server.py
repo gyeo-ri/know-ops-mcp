@@ -18,8 +18,8 @@ mcp = FastMCP(
     instructions=(
         "You are connected to know-ops-mcp, a shared knowledge store. "
         "Use these tools to search, read, write, list, and delete knowledge entries. "
-        "Each entry is identified by a knowledge_key (lowercase, hyphens, digits) "
-        "agreed upon with the user."
+        "Each entry is identified by a knowledge_key (lowercase, hyphens, digits, "
+        "and forward slashes for hierarchy like 'project/topic') agreed upon with the user."
     ),
 )
 
@@ -79,8 +79,8 @@ def write_knowledge(
     """Create or update a knowledge entry.
 
     Args:
-        knowledge_key: Unique identifier. Lowercase letters, digits, and hyphens only
-            (e.g. 'python-async-patterns').
+        knowledge_key: Unique identifier. Lowercase letters, digits, hyphens, and
+            forward slashes (e.g. 'python-async-patterns' or 'project/topic').
         title: Human-readable title shown when reading the entry.
         description: One-line summary explaining what this entry is about. Used by
             LLMs to decide whether this entry is relevant before reading the full body.
@@ -119,16 +119,18 @@ def write_knowledge(
 
 
 @mcp.tool
-def list_knowledge(tag: str | None = None) -> str:
-    """List all stored knowledge entries, optionally filtered by a tag.
+def list_knowledge(tag: str | None = None, prefix: str | None = None) -> str:
+    """List all stored knowledge entries, optionally filtered by tag or key prefix.
 
     Args:
         tag: Optional tag to filter the list.
+        prefix: Optional knowledge_key prefix to list entries under a specific
+            path (e.g. 'know-ops-mcp/' lists all entries in that directory).
 
     Returns:
         JSON list of summaries.
     """
-    results = know_ops.list_all(tag=tag)
+    results = know_ops.list_all(tag=tag, prefix=prefix)
     if not results:
         return "No knowledge entries found."
     return json.dumps(results, ensure_ascii=False, indent=2)

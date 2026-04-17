@@ -13,7 +13,7 @@ _REGISTRY: dict[str, type["BaseKnowledge"]] = {}
 
 
 class BaseKnowledge(BaseModel):
-    knowledge_key: str = Field(pattern=r"^[a-z0-9-]+$")
+    knowledge_key: str = Field(pattern=r"^[a-z0-9-]+(/[a-z0-9-]+)*$")
     type: str
     title: str = Field(min_length=1)
     description: str = Field(min_length=1)
