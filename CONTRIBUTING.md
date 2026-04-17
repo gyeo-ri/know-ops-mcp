@@ -42,7 +42,7 @@ All tests are offline; the GitHub backend is mocked with `pytest-httpx`. See [te
 - `feat:` user-visible new behavior
 - `fix:` bug fix
 - `refactor:` internal restructure with no behavior change
-- `docs:` README / AGENTS / CONTRIBUTING / docs/*
+- `docs:` README / AGENTS / CONTRIBUTING
 - `test:` test-only changes
 - `chore:` deps, build config, tooling
 
@@ -52,21 +52,11 @@ Subject is imperative and lowercase after the prefix. Body explains *why*, not *
 
 ## Documenting design changes
 
-Substantive design choices land as a numbered milestone in [docs/CHANGELOG.md](docs/CHANGELOG.md):
+Substantive design choices land as a numbered milestone in the personal knowledge store
+(entry `know-ops-mcp-history`, keyed by `M<N>`). Use this for: storage layer changes,
+configuration model changes, distribution/install model changes, any new third-party dependency.
 
-```
-## M<N>. <one-line title>
-
-<context: what triggered the change>
-
-- 검토한 대안: <option> — <why rejected>
-- 채택한 패턴: <decision>
-- 인정한 trade-off: <known downside + mitigation>
-```
-
-Use this for: storage layer changes, configuration model changes, distribution/install model changes, any new third-party dependency.
-
-Routine refactors and bug fixes don't need a CHANGELOG entry — the commit message is enough.
+Routine refactors and bug fixes don't need a milestone — the commit message is enough.
 
 ## Pull requests
 
@@ -74,4 +64,4 @@ Routine refactors and bug fixes don't need a CHANGELOG entry — the commit mess
 - Prefer many small focused commits to one giant commit. If the diff covers multiple concerns, split it.
 - If the change motivates a CHANGELOG milestone, link it from the PR description.
 - Run `uv run pytest` before pushing.
-- Keep `README.md`, `docs/ARCHITECTURE.md`, `docs/ROADMAP.md` honest — if your change makes them stale, update them in the same PR.
+- Keep `README.md` and `AGENTS.md` honest — if your change makes them stale, update them in the same PR.

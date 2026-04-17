@@ -1,9 +1,3 @@
----
-purpose: 외부 사용자에게 know-ops-mcp 설치/사용법 안내
-audience: humans
-update_when: 사용자 facing 동작/명령/설치 방법이 바뀔 때
----
-
 # know-ops-mcp
 
 Shared knowledge MCP server for any LLM client. Stores entries as plain `.md` files with frontmatter, so you can read, edit, and version-control them outside the tool.
@@ -165,9 +159,6 @@ For the GitHub backend, the same files live in your repo (under the configured s
 
 ## Documentation
 
-- Architecture and module layout: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
-- Roadmap and rejected alternatives: [docs/ROADMAP.md](docs/ROADMAP.md)
-- Change history (design milestones): [docs/CHANGELOG.md](docs/CHANGELOG.md)
 - Contributing: [CONTRIBUTING.md](CONTRIBUTING.md)
 - Agent context: [AGENTS.md](AGENTS.md)
 

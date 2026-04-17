@@ -2,33 +2,33 @@
 
 Shared-knowledge MCP server for LLM clients. Python + fastmcp. Pre-PyPI, single-user daily use.
 
-## Other docs
+## Docs in this repo
 
 - `README.md` — user-facing install/run guide
-- `docs/CHANGELOG.md` — every design decision with rationale, indexed by `M<n>`. Search this before making a non-trivial change to avoid re-litigating settled questions.
 - `CONTRIBUTING.md` — commit and style conventions
-- `docs/ARCHITECTURE.md` — current architecture and per-module contracts
-- `docs/ROADMAP.md` — open TODOs (id-keyed) and rejected alternatives
 - `tests/README.md` — test layout and conventions
+
+Design decisions, roadmap, and detailed architecture are in the personal knowledge store
+(`know-ops-mcp-history`, `know-ops-mcp-roadmap`, `know-ops-mcp-overview`, `know-ops-mcp-architecture`).
+Search them via `search_knowledge` / `read_knowledge` before making non-trivial changes.
 
 ## Hard rules
 
-- **Never modify external files.** No writes to `~/.cursor/mcp.json`, Claude Desktop config, or any other tool's settings — not even reads. We emit snippets for the user to paste. (CHANGELOG M11)
-- **Stay client-agnostic.** This repo is an MCP server; it must not detect, branch on, or care which LLM client is calling it. (CHANGELOG M12)
+- **Never modify external files.** No writes to `~/.cursor/mcp.json`, Claude Desktop config, or any other tool's settings — not even reads. We emit snippets for the user to paste.
+- **Stay client-agnostic.** This repo is an MCP server; it must not detect, branch on, or care which LLM client is calling it.
 - **No speculative code.** Don't add classes/abstractions/branches for use cases we don't have today.
 - **No narration comments.** Don't write comments that just restate what the code does.
 
 ## Update obligations
 
-When you change behavior, update the corresponding doc in the same commit/PR:
+When you change behavior, update in the same commit/PR:
 
-- New or removed module/feature → `docs/ARCHITECTURE.md`
-- Design decision or accepted/rejected trade-off → new milestone in `docs/CHANGELOG.md` (`M<n>`)
-- Roadmap status change (start/finish/block an item, add a new one) → `docs/ROADMAP.md`
 - Behavior change → tests in `tests/`
+- New or removed module/feature → this file (if it affects a hard rule or obligation)
+- Design decision or trade-off → new milestone in personal store (`know-ops-mcp-history`, key `M<n>`)
 
 ## Workflow
 
-1. Before non-trivial changes, grep `docs/CHANGELOG.md` for related keywords to surface prior decisions.
+1. Before non-trivial changes, `read_knowledge("know-ops-mcp-history")` to surface prior decisions.
 2. Keep commits small and focused. See `CONTRIBUTING.md` for style.
 3. Wait for user approval before moving to the next step.

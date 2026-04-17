@@ -1,9 +1,3 @@
----
-purpose: 테스트 작성/실행 컨벤션
-audience: [humans, agents]
-update_when: 테스트 도구/패턴/슈트 구조 변경 시
----
-
 # Tests
 
 ```bash
