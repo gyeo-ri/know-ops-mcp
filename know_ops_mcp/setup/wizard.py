@@ -10,6 +10,8 @@ default to `main` / root; edit `config.toml` directly to change them.
 from __future__ import annotations
 
 import json
+import shutil
+from importlib import metadata
 
 import questionary
 
@@ -24,6 +26,8 @@ from know_ops_mcp.storage import default_data_dir
 from know_ops_mcp.storage.backends.internal.local import LocalDirectoryStorage
 
 SERVER_NAME = "know-ops-mcp"
+UV_INSTALL_URL = "https://docs.astral.sh/uv/getting-started/installation/"
+UV_INSTALL_CMD = "curl -LsSf https://astral.sh/uv/install.sh | sh"
 
 
 def run() -> None:
@@ -122,8 +126,9 @@ def _print_existing(storage: StorageConfig) -> None:
 
 
 def _print_snippet() -> None:
+    args = _uvx_args()
     snippet = json.dumps(
-        {"mcpServers": {SERVER_NAME: {"command": SERVER_NAME}}},
+        {"mcpServers": {SERVER_NAME: {"command": "uvx", "args": args}}},
         indent=2,
     )
     print("\nRegister this MCP server with your client:\n")
@@ -133,6 +138,45 @@ def _print_snippet() -> None:
         "\nConsult your MCP client's documentation for where to put this snippet,\n"
         "then restart the client."
     )
+    if shutil.which("uvx") is None:
+        print(
+            "\n[warning] 'uvx' was not found on PATH. The snippet above relies on it.\n"
+            f"Install uv first ({UV_INSTALL_URL}):\n"
+            f"  {UV_INSTALL_CMD}"
+        )
+
+
+def _uvx_args() -> list[str]:
+    source = _install_source()
+    if source is None:
+        return [SERVER_NAME]
+    return ["--from", source, SERVER_NAME]
+
+
+def _install_source() -> str | None:
+    """Return a `uvx --from` source for non-PyPI installs, else None.
+
+    Reads PEP 610 `direct_url.json` written by pip/uv when installing from a
+    local path or VCS URL. PyPI installs have no such file.
+    """
+    try:
+        raw = metadata.distribution(SERVER_NAME).read_text("direct_url.json")
+    except metadata.PackageNotFoundError:
+        return None
+    if not raw:
+        return None
+    info = json.loads(raw)
+    url = info.get("url", "")
+    if "vcs_info" in info:
+        vcs = info["vcs_info"].get("vcs", "git")
+        ref = info["vcs_info"].get("commit_id") or info["vcs_info"].get("requested_revision")
+        spec = f"{vcs}+{url}"
+        if ref:
+            spec += f"@{ref}"
+        return spec
+    if "dir_info" in info and url.startswith("file://"):
+        return url[len("file://"):]
+    return None
 
 
 def _nonempty(value: str) -> bool | str:

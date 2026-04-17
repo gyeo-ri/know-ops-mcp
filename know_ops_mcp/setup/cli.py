@@ -7,6 +7,12 @@ import typer
 app = typer.Typer(
     name="know-ops-mcp",
     help="Shared knowledge MCP server.",
+    epilog=(
+        "Recommended invocation: 'uvx know-ops-mcp ...' "
+        "(or 'uvx --from <path-or-git-url> know-ops-mcp ...' before PyPI release). "
+        "If 'uvx' is missing, install uv: "
+        "https://docs.astral.sh/uv/getting-started/installation/"
+    ),
     no_args_is_help=False,
     add_completion=False,
 )
