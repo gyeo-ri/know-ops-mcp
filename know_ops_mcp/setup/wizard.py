@@ -20,9 +20,9 @@ from know_ops_mcp.setup.config import (
     LocalStorageConfig,
     StorageConfig,
 )
+from know_ops_mcp.storage import default_data_dir
 from know_ops_mcp.storage.backends.internal.local import LocalDirectoryStorage
 
-DEFAULT_LOCAL_PATH = "~/Documents/know-ops-mcp"
 SERVER_NAME = "know-ops-mcp"
 
 
@@ -62,7 +62,7 @@ def _prompt_local(existing: Config | None) -> LocalStorageConfig | None:
     default = (
         existing.storage.path
         if existing and isinstance(existing.storage, LocalStorageConfig)
-        else DEFAULT_LOCAL_PATH
+        else str(default_data_dir())
     )
     path = questionary.text(
         "Storage directory:",

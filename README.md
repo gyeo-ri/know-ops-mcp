@@ -118,13 +118,14 @@ updated: '2026-04-15'
 Free-form Markdown body.
 ```
 
-For the local backend, files live under the storage directory you chose (named `<unique_name>.md`).
+For the local backend, files live under the storage directory you chose during setup (named `<unique_name>.md`). The default is `$XDG_DATA_HOME/know-ops-mcp` (typically `~/.local/share/know-ops-mcp`); you can override it at the prompt.
 For the GitHub backend, the same files live in your repo (under the configured subdirectory, root by default), and a content-addressed copy is mirrored under `~/.cache/know-ops-mcp/`.
 
 ## Scope and design
 
 - **Client-agnostic.** This server speaks MCP over stdio. It does not know or care which LLM client connects to it.
-- **No external side effects.** The tool only writes to its own config dir (`~/.config/know-ops-mcp/`), its cache dir (`~/.cache/know-ops-mcp/`), and the storage backend you configured. It never modifies your client's `mcp.json` or any other external file.
+- **No external side effects.** The tool only writes to its own config dir (`$XDG_CONFIG_HOME/know-ops-mcp/`), its cache dir (`$XDG_CACHE_HOME/know-ops-mcp/`), and the storage backend you configured. It never modifies your client's `mcp.json` or any other external file.
+- **XDG-aware paths.** Config, cache, and the local backend default all follow the XDG Base Directory specification (`~/.config`, `~/.cache`, `~/.local/share`).
 
 ## Documentation
 

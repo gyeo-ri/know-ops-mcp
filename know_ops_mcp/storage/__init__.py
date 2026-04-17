@@ -4,7 +4,10 @@ from __future__ import annotations
 
 from know_ops_mcp.storage.backends.external import ExternalStorage
 from know_ops_mcp.storage.backends.external.github import GitHubStorage
-from know_ops_mcp.storage.backends.internal.local import LocalDirectoryStorage
+from know_ops_mcp.storage.backends.internal.local import (
+    LocalDirectoryStorage,
+    default_data_dir,
+)
 from know_ops_mcp.storage.backends.internal.memory import MemoryStorage
 from know_ops_mcp.storage.base import BaseStorage
 from know_ops_mcp.storage.cache import CachedStorage, default_cache_dir
@@ -48,5 +51,6 @@ __all__ = [
     "MemoryStorage",
     "StorageService",
     "default_cache_dir",
+    "default_data_dir",
     "storage",
 ]

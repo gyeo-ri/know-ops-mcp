@@ -2,10 +2,16 @@
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
 from know_ops_mcp.storage import disk
 from know_ops_mcp.storage.backends.internal import InternalStorage
+
+
+def default_data_dir() -> Path:
+    base = os.environ.get("XDG_DATA_HOME") or "~/.local/share"
+    return Path(base).expanduser() / "know-ops-mcp"
 
 
 class LocalDirectoryStorage(InternalStorage):
