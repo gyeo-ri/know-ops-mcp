@@ -96,6 +96,20 @@ After restarting your client, six MCP tools should be available:
 
 Try asking the LLM to write a note, then ask another session to read it back.
 
+## Updating
+
+`uvx` caches the installed environment, so new commits on GitHub are **not** picked up automatically. To update:
+
+```bash
+uvx --reinstall --from git+https://github.com/gyeo-ri/know-ops-mcp know-ops-mcp serve
+```
+
+Or clear the cache and let the next run fetch fresh:
+
+```bash
+uv cache clean know-ops-mcp
+```
+
 ## Re-running setup
 
 `know-ops-mcp setup` is idempotent and doubles as a status check.
