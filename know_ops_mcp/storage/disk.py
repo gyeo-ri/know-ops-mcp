@@ -48,10 +48,15 @@ def delete(root: Path, name: str) -> bool:
     return True
 
 
+def _is_entry(path: Path) -> bool:
+    return path.name[0:1].islower()
+
+
 def list_all(root: Path) -> dict[str, str]:
     return {
         p.relative_to(root).with_suffix("").as_posix(): p.read_text(encoding="utf-8")
         for p in root.rglob("*.md")
+        if _is_entry(p)
     }
 
 

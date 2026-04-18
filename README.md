@@ -96,6 +96,20 @@ After restarting your client, six MCP tools should be available:
 
 Try asking the LLM to write a note, then ask another session to read it back.
 
+## Updating
+
+`uvx` caches the installed environment, so new commits on GitHub are **not** picked up automatically. To update:
+
+```bash
+uvx --reinstall --from git+https://github.com/gyeo-ri/know-ops-mcp know-ops-mcp serve
+```
+
+Or clear the cache and let the next run fetch fresh:
+
+```bash
+uv cache clean know-ops-mcp
+```
+
 ## Re-running setup
 
 `know-ops-mcp setup` is idempotent and doubles as a status check.
@@ -143,6 +157,8 @@ On disk and in GitHub, slashes become directory separators (`know-ops-mcp/histor
 
 For the local backend, files live under the storage directory you chose during setup (named `<knowledge_key>.md`). The default is `$XDG_DATA_HOME/know-ops-mcp` (typically `~/.local/share/know-ops-mcp`); you can override it at the prompt.
 For the GitHub backend, the same files live in your repo (under the configured subdirectory, root by default), and a content-addressed copy is mirrored under `~/.cache/know-ops-mcp/`.
+
+`.md` files whose name starts with an uppercase letter (e.g. `README.md`, `LICENSE.md`) are **not** treated as knowledge entries and are excluded from listings. The setup wizard creates a `README.md` in the storage location automatically to describe the store format.
 
 ## Scope and design
 

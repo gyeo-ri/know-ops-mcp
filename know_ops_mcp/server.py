@@ -16,10 +16,13 @@ from know_ops_mcp.setup.config import Config
 mcp = FastMCP(
     "know-ops-mcp",
     instructions=(
-        "You are connected to know-ops-mcp, a shared knowledge store. "
-        "Use these tools to search, read, write, list, and delete knowledge entries. "
+        "You are connected to know-ops-mcp, a shared knowledge store that persists "
+        "across sessions. When starting a new task, call list_knowledge() first to "
+        "see what's already stored — each summary includes a description you can scan "
+        "before deciding what to read in full. Use search_knowledge() for keyword "
+        "lookup, or list_knowledge(prefix='area/') to browse a specific area. "
         "Each entry is identified by a knowledge_key (lowercase, hyphens, digits, "
-        "and forward slashes for hierarchy like 'project/topic') agreed upon with the user."
+        "and forward slashes for hierarchy like 'project/topic')."
     ),
 )
 
@@ -122,13 +125,15 @@ def write_knowledge(
 def list_knowledge(tag: str | None = None, prefix: str | None = None) -> str:
     """List all stored knowledge entries, optionally filtered by tag or key prefix.
 
+    Call this at the start of a session to see what's available.
+
     Args:
         tag: Optional tag to filter the list.
         prefix: Optional knowledge_key prefix to list entries under a specific
             path (e.g. 'know-ops-mcp/' lists all entries in that directory).
 
     Returns:
-        JSON list of summaries.
+        JSON list of summaries (knowledge_key, type, title, description, tags).
     """
     results = know_ops.list_all(tag=tag, prefix=prefix)
     if not results:
