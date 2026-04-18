@@ -19,7 +19,7 @@ def _seed(knowledge_key: str = "alpha", **overrides) -> None:
         knowledge_key=knowledge_key,
         title="T",
         description="D",
-        content="C",
+        body="C",
         tags=["t1"],
     )
     payload.update(overrides)
@@ -45,7 +45,7 @@ class TestReadTool:
         assert server.read_knowledge("ghost") == "Knowledge 'ghost' not found."
 
     def test_existing_returns_full_json(self):
-        _seed("alpha", content="body")
+        _seed("alpha", body="body")
         parsed = json.loads(server.read_knowledge("alpha"))
         assert parsed["knowledge_key"] == "alpha"
         assert parsed["content"] == "body"
@@ -54,7 +54,7 @@ class TestReadTool:
 class TestWriteTool:
     def test_success_returns_full_json(self):
         result = server.write_knowledge(
-            knowledge_key="alpha", title="T", description="D", content="C"
+            knowledge_key="alpha", title="T", description="D", body="C"
         )
         parsed = json.loads(result)
         assert parsed["knowledge_key"] == "alpha"
@@ -62,14 +62,14 @@ class TestWriteTool:
 
     def test_invalid_knowledge_key_returns_validation_message(self):
         result = server.write_knowledge(
-            knowledge_key="Bad Name", title="T", description="D", content="C"
+            knowledge_key="Bad Name", title="T", description="D", body="C"
         )
         assert result.startswith("Validation failed:")
         assert "knowledge_key" in result
 
     def test_hierarchical_key_round_trip(self):
         result = server.write_knowledge(
-            knowledge_key="proj/topic", title="T", description="D", content="C"
+            knowledge_key="proj/topic", title="T", description="D", body="C"
         )
         parsed = json.loads(result)
         assert parsed["knowledge_key"] == "proj/topic"
@@ -81,39 +81,39 @@ class TestWriteTool:
             knowledge_key="alpha",
             title="T",
             description="D",
-            content="C",
+            body="C",
             type="nope",
         )
         assert result.startswith("Error:")
         assert "Unknown knowledge type" in result
 
-    def test_content_path_reads_file(self, tmp_path):
+    def test_body_path_reads_file(self, tmp_path):
         md = tmp_path / "note.md"
         md.write_text("body from file", encoding="utf-8")
         result = server.write_knowledge(
             knowledge_key="alpha", title="T", description="D",
-            content_path=str(md),
+            body_path=str(md),
         )
         parsed = json.loads(result)
         assert parsed["content"] == "body from file"
 
-    def test_content_and_content_path_both_given_returns_error(self, tmp_path):
+    def test_body_and_body_path_both_given_returns_error(self, tmp_path):
         md = tmp_path / "note.md"
         md.write_text("x", encoding="utf-8")
         result = server.write_knowledge(
             knowledge_key="alpha", title="T", description="D",
-            content="inline", content_path=str(md),
+            body="inline", body_path=str(md),
         )
         assert "not both" in result
 
-    def test_content_path_missing_file_returns_error(self):
+    def test_body_path_missing_file_returns_error(self):
         result = server.write_knowledge(
             knowledge_key="alpha", title="T", description="D",
-            content_path="/tmp/nonexistent-9999.md",
+            body_path="/tmp/nonexistent-9999.md",
         )
         assert "File not found" in result
 
-    def test_neither_content_nor_path_returns_error(self):
+    def test_neither_body_nor_path_returns_error(self):
         result = server.write_knowledge(
             knowledge_key="alpha", title="T", description="D",
         )
