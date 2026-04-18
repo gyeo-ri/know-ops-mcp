@@ -102,19 +102,25 @@ def test_list_all_uses_list_versions_then_caches_per_entry(fake, cache, tmp_path
     assert sorted(fake.read_calls) == ["alpha", "beta"]
     assert (tmp_path / "alpha.md").exists()
     assert (tmp_path / "beta.md").exists()
+    assert (tmp_path / ".list-populated").exists()
 
 
-def test_list_all_second_call_skips_per_entry_backend_reads(fake, cache):
+def test_list_all_second_call_serves_from_disk_cache(fake, cache):
     cache.list_all()
     fake.read_calls.clear()
+    fake.list_versions_calls = 0
     cache.list_all()
     assert fake.read_calls == []
-    assert fake.list_versions_calls == 2
+    assert fake.list_versions_calls == 0
 
 
-def test_list_all_picks_up_new_remote_entry(fake, cache):
+def test_list_all_requires_refresh_to_pick_up_new_remote_entry(fake, cache):
     cache.list_all()
     fake._data["delta"] = "delta-body"
+    result = cache.list_all()
+    assert "delta" not in result
+
+    cache.refresh()
     result = cache.list_all()
     assert "delta" in result and result["delta"] == "delta-body"
 
@@ -132,6 +138,23 @@ def test_refresh_all_clears_cache(fake, cache, tmp_path):
     cache.read("beta")
     cache.refresh()
     assert list(tmp_path.glob("*.md")) == []
+
+
+def test_refresh_all_clears_list_marker(fake, cache, tmp_path):
+    cache.list_all()
+    assert (tmp_path / ".list-populated").exists()
+    cache.refresh()
+    assert not (tmp_path / ".list-populated").exists()
+
+
+def test_refresh_all_then_list_all_refetches_from_backend(fake, cache):
+    cache.list_all()
+    cache.refresh()
+    fake.list_versions_calls = 0
+    fake.read_calls.clear()
+    cache.list_all()
+    assert fake.list_versions_calls == 1
+    assert sorted(fake.read_calls) == ["alpha", "beta"]
 
 
 def test_refresh_then_read_refetches_and_recaches(fake, cache, tmp_path):
