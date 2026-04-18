@@ -29,6 +29,41 @@ SERVER_NAME = "know-ops-mcp"
 UV_INSTALL_URL = "https://docs.astral.sh/uv/getting-started/installation/"
 UV_INSTALL_CMD = "curl -LsSf https://astral.sh/uv/install.sh | sh"
 
+_STORAGE_README = """\
+# Knowledge Store
+
+This directory is managed by \
+[know-ops-mcp](https://github.com/gyeo-ri/know-ops-mcp), \
+a cross-session knowledge management MCP server for LLM clients.
+
+## Entry format
+
+Each `.md` file is a knowledge entry with YAML frontmatter:
+
+```yaml
+---
+knowledge_key: example-topic
+type: general
+title: Example Topic
+description: One-line summary for LLM relevance ranking.
+tags: [example]
+created: '2026-01-01'
+updated: '2026-01-01'
+---
+
+Markdown body here.
+```
+
+## Management
+
+Entries are created and managed through MCP tools (`write_knowledge`, \
+`read_knowledge`, etc.) connected to your LLM client. You can also edit \
+`.md` files directly — the format is standard YAML frontmatter + Markdown.
+
+Files whose name starts with an uppercase letter (like this README) are \
+excluded from knowledge listings automatically.
+"""
+
 
 def run() -> None:
     print(f"{SERVER_NAME} setup\n")
@@ -59,6 +94,7 @@ def run() -> None:
 
     Config(storage=storage).save()
     print(f"\nConfig saved: {Config.location()}")
+    _seed_readme(storage)
     _print_snippet()
 
 
@@ -181,3 +217,22 @@ def _install_source() -> str | None:
 
 def _nonempty(value: str) -> bool | str:
     return True if value.strip() else "Cannot be empty."
+
+
+def _seed_readme(storage: StorageConfig) -> None:
+    if isinstance(storage, LocalStorageConfig):
+        readme = Path(storage.path).expanduser() / "README.md"
+        if readme.exists():
+            return
+        readme.write_text(_STORAGE_README, encoding="utf-8")
+        print("Created README.md in storage directory.")
+        return
+    if isinstance(storage, GitHubStorageConfig):
+        try:
+            backend = Config(storage=storage).to_storage_backend()
+            if backend.read("README") is not None:
+                return
+            backend.write("README", _STORAGE_README)
+            print("Created README.md in GitHub repository.")
+        except Exception as exc:
+            print(f"[warning] Could not create README.md in repo: {exc}")
