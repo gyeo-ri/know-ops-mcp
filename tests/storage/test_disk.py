@@ -67,6 +67,15 @@ def test_list_all_ignores_non_md_files(tmp_path):
     assert disk.list_all(tmp_path) == {"kept": "yes"}
 
 
+def test_list_all_skips_uppercase_md_files(tmp_path):
+    disk.write(tmp_path, "entry", "body")
+    (tmp_path / "README.md").write_text("# Readme")
+    (tmp_path / "LICENSE.md").write_text("MIT")
+    (tmp_path / "sub").mkdir()
+    (tmp_path / "sub" / "CONTRIBUTING.md").write_text("# Contributing")
+    assert disk.list_all(tmp_path) == {"entry": "body"}
+
+
 def test_clear_removes_only_md_files(tmp_path):
     disk.write(tmp_path, "a", "alpha")
     disk.write(tmp_path, "b", "beta")

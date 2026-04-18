@@ -169,6 +169,9 @@ class GitHubStorage(ExternalStorage):
             path = item.get("path", "")
             if not path.endswith(".md"):
                 continue
+            basename = path.rsplit("/", 1)[-1]
+            if not basename[0:1].islower():
+                continue
             if prefix and not path.startswith(prefix):
                 continue
             entries.append({"path": path, "sha": item["sha"]})

@@ -280,6 +280,18 @@ class TestListVersions:
         )
         assert storage.list_versions() == {"a": "sha-a"}
 
+    def test_filters_uppercase_md(self, httpx_mock, storage):
+        httpx_mock.add_response(
+            method="GET",
+            url=_trees_url(),
+            json=self._tree_payload([
+                {"type": "blob", "path": "entry.md", "sha": "sha-e"},
+                {"type": "blob", "path": "README.md", "sha": "ignored"},
+                {"type": "blob", "path": "sub/CONTRIBUTING.md", "sha": "ignored"},
+            ]),
+        )
+        assert storage.list_versions() == {"entry": "sha-e"}
+
     def test_includes_nested_files_as_slash_keys(self, httpx_mock, storage):
         httpx_mock.add_response(
             method="GET",

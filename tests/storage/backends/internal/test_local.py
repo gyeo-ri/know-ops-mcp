@@ -37,6 +37,13 @@ def test_list_all_returns_all_entries(tmp_path):
     assert s.list_all() == {"a": "alpha", "b": "beta"}
 
 
+def test_list_all_skips_uppercase_md_files(tmp_path):
+    s = LocalDirectoryStorage(tmp_path)
+    s.write("entry", "body")
+    (tmp_path / "README.md").write_text("# Readme")
+    assert s.list_all() == {"entry": "body"}
+
+
 def test_two_instances_share_filesystem(tmp_path):
     a = LocalDirectoryStorage(tmp_path)
     a.write("entry", "body")
