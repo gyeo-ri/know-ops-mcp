@@ -71,8 +71,8 @@ def write_knowledge(
     knowledge_key: str,
     title: str,
     description: str,
-    content: str | None = None,
-    content_path: str | None = None,
+    body: str | None = None,
+    body_path: str | None = None,
     tags: list[str] | None = None,
     type: str = "general",
 ) -> str:
@@ -84,30 +84,30 @@ def write_knowledge(
         title: Human-readable title shown when reading the entry.
         description: One-line summary explaining what this entry is about. Used by
             LLMs to decide whether this entry is relevant before reading the full body.
-        content: Markdown body of the entry.
-        content_path: Local file path to read the markdown body from. Use this
-            instead of content when the body is large. Mutually exclusive with content.
+        body: Markdown body of the entry (plain string).
+        body_path: Local file path to read the markdown body from. Use this
+            instead of body when the body is large. Mutually exclusive with body.
         tags: Optional list of tags for categorization.
         type: Knowledge type discriminator (default 'general').
 
     Returns:
         JSON of the saved entry, or a validation error message.
     """
-    if content and content_path:
-        return "Error: Provide either 'content' or 'content_path', not both."
-    if content_path:
-        path = Path(content_path).expanduser()
+    if body and body_path:
+        return "Error: Provide either 'body' or 'body_path', not both."
+    if body_path:
+        path = Path(body_path).expanduser()
         if not path.is_file():
-            return f"Error: File not found: {content_path}"
-        content = path.read_text(encoding="utf-8")
-    if not content:
-        return "Error: Either 'content' or 'content_path' must be provided."
+            return f"Error: File not found: {body_path}"
+        body = path.read_text(encoding="utf-8")
+    if not body:
+        return "Error: Either 'body' or 'body_path' must be provided."
     try:
         knowledge = know_ops.write(
             knowledge_key=knowledge_key,
             title=title,
             description=description,
-            content=content,
+            content=body,
             tags=tags,
             type=type,
         )
