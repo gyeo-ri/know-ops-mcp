@@ -30,6 +30,10 @@ When you change behavior, update in the same commit/PR:
 
 ## Workflow
 
-1. Before non-trivial changes, `read_knowledge("projects/know-ops-mcp/history")` to surface prior decisions.
-2. Keep commits small and focused. See `CONTRIBUTING.md` for style.
-3. Wait for user approval before moving to the next step.
+This project dogfoods its own MCP for cross-session context. If the `recall` /
+`remember` skills are installed, use them; otherwise call the MCP tools directly.
+
+1. Before non-trivial changes, `/recall` (or `read_knowledge("projects/know-ops-mcp/history")` + `overview`) to surface prior decisions.
+2. After a design decision or milestone, `/remember` it into `projects/know-ops-mcp/` (see Update obligations) instead of letting it live only in the commit.
+3. Keep commits small and focused. See `CONTRIBUTING.md` for style.
+4. Wait for user approval before moving to the next step.
