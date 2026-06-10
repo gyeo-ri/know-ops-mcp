@@ -12,6 +12,7 @@ from __future__ import annotations
 import json
 import shutil
 from importlib import metadata
+from pathlib import Path
 
 import questionary
 
@@ -62,6 +63,22 @@ Entries are created and managed through MCP tools (`write_knowledge`, \
 
 Files whose name starts with an uppercase letter (like this README) are \
 excluded from knowledge listings automatically.
+
+## Conventions
+
+To keep entries consistent across projects and sessions:
+
+- **Keys**: project knowledge lives under `projects/<project>/<doc-type>` \
+(e.g. `projects/lge-social/overview`). Use one stable kebab-case name per \
+project — don't fork a project across two names or two roots.
+- **Doc types**: `overview`, `architecture`, `design-decisions`, `history`, \
+`session` (`…/session-YYYY-MM-DD`), `roadmap`, `todo`, `runbook`, `note`. \
+One canonical entry per concern — update, don't duplicate.
+- **Tags**: one project tag + one doc-type tag + optional tech tags, \
+lowercase kebab-case, no synonyms.
+
+The LLM can fetch the full style guide and per-type templates anytime via the \
+`get_writing_guide` tool.
 """
 
 

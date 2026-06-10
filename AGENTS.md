@@ -7,6 +7,7 @@ Shared-knowledge MCP server for LLM clients. Python + fastmcp. Pre-PyPI, single-
 - `README.md` — user-facing install/run guide
 - `CONTRIBUTING.md` — commit and style conventions
 - `tests/README.md` — test layout and conventions
+- `know_ops_mcp/templates/` — style guide + per-doc-type templates served to LLM clients via the `get_writing_guide` tool (conventions for the *managed* knowledge stores, not this repo)
 
 Design decisions, roadmap, and detailed architecture are in the personal knowledge store
 under `projects/know-ops-mcp/` (overview, history, roadmap, architecture).
