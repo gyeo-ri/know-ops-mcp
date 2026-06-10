@@ -26,6 +26,23 @@ def _seed(knowledge_key: str = "alpha", **overrides) -> None:
     server.write_knowledge(**payload)
 
 
+class TestWritingGuideTool:
+    def test_no_type_returns_guide_and_lists_types(self):
+        result = server.get_writing_guide()
+        assert "style guide" in result.lower()
+        assert "overview" in result and "architecture" in result
+
+    def test_known_type_appends_template(self):
+        result = server.get_writing_guide("overview")
+        assert "style guide" in result.lower()
+        assert "Template: overview" in result
+
+    def test_unknown_type_lists_valid_types(self):
+        result = server.get_writing_guide("bogus")
+        assert result.startswith("Unknown doc_type 'bogus'")
+        assert "overview" in result
+
+
 class TestSearchTool:
     def test_no_match_returns_message(self):
         result = server.search_knowledge("nothing")

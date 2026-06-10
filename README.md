@@ -85,7 +85,7 @@ GitHub reads are cached under `~/.cache/know-ops-mcp/` (XDG-aware) so repeated l
 
 ## Verify
 
-After restarting your client, six MCP tools should be available:
+After restarting your client, seven MCP tools should be available:
 
 - `search_knowledge`
 - `read_knowledge`
@@ -93,8 +93,19 @@ After restarting your client, six MCP tools should be available:
 - `list_knowledge`
 - `delete_knowledge`
 - `refresh_knowledge_cache`
+- `get_writing_guide`
 
 Try asking the LLM to write a note, then ask another session to read it back.
+
+### Writing conventions
+
+`get_writing_guide(doc_type)` returns a style guide (key namespace, tag
+vocabulary, session policy) plus a section template for each document type
+(`overview`, `architecture`, `design-decisions`, `history`, `session`,
+`roadmap`, `todo`, `runbook`, `note`). The server instructs connected LLMs to
+consult it before creating a new entry, so a knowledge base stays consistently
+organized across projects and sessions. A condensed summary is also seeded into
+the store's `README.md` on setup.
 
 ## Updating
 

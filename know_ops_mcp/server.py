@@ -9,6 +9,7 @@ from pathlib import Path
 from fastmcp import FastMCP
 from pydantic import ValidationError
 
+from know_ops_mcp import templates
 from know_ops_mcp.know_ops import know_ops
 from know_ops_mcp.storage import storage
 from know_ops_mcp.setup.config import Config
@@ -22,7 +23,12 @@ mcp = FastMCP(
         "before deciding what to read in full. Use search_knowledge() for keyword "
         "lookup, or list_knowledge(prefix='area/') to browse a specific area. "
         "Each entry is identified by a knowledge_key (lowercase, hyphens, digits, "
-        "and forward slashes for hierarchy like 'project/topic')."
+        "and forward slashes for hierarchy like 'project/topic'). "
+        "Before creating a NEW entry, call get_writing_guide(doc_type) to get the "
+        "key-naming convention, tag vocabulary, and a section template — this keeps "
+        "entries consistent across projects and sessions. When revising an entry, "
+        "verify its claims against the source of truth (the repo/code) rather than "
+        "copying stale prose, and reconcile rather than duplicate."
     ),
 )
 
@@ -30,6 +36,38 @@ mcp = FastMCP(
 def _format_validation_error(exc: ValidationError) -> str:
     parts = [f"- {'.'.join(str(p) for p in e['loc'])}: {e['msg']}" for e in exc.errors()]
     return "Validation failed:\n" + "\n".join(parts)
+
+
+@mcp.tool
+def get_writing_guide(doc_type: str | None = None) -> str:
+    """Return the knowledge-base style guide, plus a doc template when doc_type is given.
+
+    Call this BEFORE creating a new entry so the key naming, tag vocabulary, and
+    section structure stay consistent across projects and sessions.
+
+    Args:
+        doc_type: Optional document type to also get a section template for. One of:
+            overview, architecture, design-decisions, history, session, roadmap,
+            todo, runbook, note. Omit to get just the style guide.
+
+    Returns:
+        The style guide. If doc_type is a known type, its template is appended;
+        if unknown, the list of valid types is returned instead.
+    """
+    guide = templates.load_style_guide()
+    if doc_type is None:
+        return (
+            f"{guide}\n\n## Document types\n"
+            "Call get_writing_guide(doc_type=...) for a section template. "
+            f"Available: {', '.join(templates.DOC_TYPES)}."
+        )
+    template = templates.load_template(doc_type)
+    if template is None:
+        return (
+            f"Unknown doc_type '{doc_type}'. "
+            f"Available: {', '.join(templates.DOC_TYPES)}."
+        )
+    return f"{guide}\n\n---\n\n{template}"
 
 
 @mcp.tool
@@ -81,9 +119,15 @@ def write_knowledge(
 ) -> str:
     """Create or update a knowledge entry.
 
+    For a NEW entry, call get_writing_guide(doc_type) first: project knowledge is
+    keyed `projects/<project>/<doc-type>`, tags are a controlled set (one project
+    tag + one doc-type tag + optional tech tags), and each doc-type has a section
+    template. Update the existing entry instead of creating an overlapping one.
+
     Args:
         knowledge_key: Unique identifier. Lowercase letters, digits, hyphens, and
-            forward slashes (e.g. 'python-async-patterns' or 'project/topic').
+            forward slashes (e.g. 'projects/lge-social/overview'). Reuse the
+            existing project name — don't fork a project across two keys.
         title: Human-readable title shown when reading the entry.
         description: One-line summary explaining what this entry is about. Used by
             LLMs to decide whether this entry is relevant before reading the full body.
